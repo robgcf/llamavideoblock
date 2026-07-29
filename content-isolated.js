@@ -16,6 +16,7 @@
 
   const VERDICT_CHANNEL = 'llamavideoblock:verdict';
   const COUNT_CHANNEL = 'llamavideoblock:count';
+  const DEBUG_CHANNEL = 'llamavideoblock:debug';
   /** The count is cosmetic and page-visible, so clamp rather than trust it. */
   const MAX_REPORTED_COUNT = 9999;
 
@@ -107,15 +108,38 @@
     }
   }
 
+  /**
+   * @param {string[]} lines
+   * @returns {void}
+   */
+  function reportDebugLines(lines) {
+    if (!contextIsValid()) return;
+    try {
+      chrome.runtime.sendMessage({ type: 'debugLines', lines }).catch(() => {});
+    } catch (error) {
+      console.error('[LlamaVideoBlock] Could not report diagnostics:', error);
+    }
+  }
+
   window.addEventListener('message', (event) => {
     if (event.source !== window) return;
 
     const data = event.data;
-    if (!data || typeof data !== 'object' || data.channel !== COUNT_CHANNEL) return;
+    if (!data || typeof data !== 'object') return;
 
-    const count = Number(data.count);
-    if (!Number.isFinite(count) || count < 0) return;
-    reportCount(Math.min(Math.floor(count), MAX_REPORTED_COUNT));
+    if (data.channel === COUNT_CHANNEL) {
+      const count = Number(data.count);
+      if (!Number.isFinite(count) || count < 0) return;
+      reportCount(Math.min(Math.floor(count), MAX_REPORTED_COUNT));
+      return;
+    }
+
+    if (data.channel === DEBUG_CHANNEL && Array.isArray(data.lines)) {
+      const lines = data.lines
+        .filter(/** @param {unknown} line */ (line) => typeof line === 'string')
+        .slice(0, 50);
+      if (lines.length > 0) reportDebugLines(lines);
+    }
   });
 
   void resolveVerdict();

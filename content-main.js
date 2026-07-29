@@ -28,6 +28,7 @@
 
   const VERDICT_CHANNEL = 'llamavideoblock:verdict';
   const COUNT_CHANNEL = 'llamavideoblock:count';
+  const DEBUG_CHANNEL = 'llamavideoblock:debug';
 
   /** Give up waiting for a verdict and stay blocked. Storage reads take ~1ms in practice. */
   const VERDICT_TIMEOUT_MS = 5000;
@@ -82,9 +83,34 @@
 
     if (debug) {
       console.log('%c[LlamaVideoBlock]', 'color:#eda13c;font-weight:bold', line);
+      queueForPopup(line);
       return;
     }
     if (debugBuffer.length < MAX_DEBUG_LINES) debugBuffer.push(line);
+  }
+
+  /**
+   * Decisions also go to the popup, so diagnosing does not require opening DevTools on a
+   * page that may be drowning in other extensions' logging.
+   *
+   * @type {string[]}
+   */
+  const popupQueue = [];
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  let popupFlushTimer = null;
+
+  /**
+   * @param {string} line
+   * @returns {void}
+   */
+  function queueForPopup(line) {
+    popupQueue.push(line);
+    if (popupFlushTimer !== null) return;
+    popupFlushTimer = setTimeout(() => {
+      popupFlushTimer = null;
+      const lines = popupQueue.splice(0, popupQueue.length);
+      window.postMessage({ channel: DEBUG_CHANNEL, lines }, '*');
+    }, 400);
   }
 
   /**
@@ -434,6 +460,7 @@
       );
       for (const line of debugBuffer) console.log(line);
       console.groupEnd();
+      for (const line of debugBuffer) queueForPopup(line);
     }
     debugBuffer.length = 0;
     trace(`verdict received — blocking=${shouldBlock}`);

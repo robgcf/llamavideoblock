@@ -179,6 +179,51 @@ const LlamaVideoBlockStore = {
     await chrome.storage.session.set({ [this.COUNTS_KEY]: counts });
   },
 
+  /** Diagnostics ring buffer, per tab. Newest last. */
+  LINES_KEY: 'debugLines',
+  MAX_LINES_PER_TAB: 60,
+
+  /**
+   * @param {number} tabId
+   * @param {readonly string[]} lines
+   * @returns {Promise<void>}
+   */
+  async appendDebugLines(tabId, lines) {
+    const stored = await chrome.storage.session.get(this.LINES_KEY);
+    const all = /** @type {Record<string, string[]>} */ (stored[this.LINES_KEY] ?? {});
+    const existing = all[String(tabId)] ?? [];
+    // Keep the tail: the decisions nearest the failure are the useful ones.
+    all[String(tabId)] = [...existing, ...lines].slice(-this.MAX_LINES_PER_TAB);
+    await chrome.storage.session.set({ [this.LINES_KEY]: all });
+  },
+
+  /**
+   * @param {number} tabId
+   * @returns {Promise<string[]>}
+   */
+  async getDebugLines(tabId) {
+    try {
+      const stored = await chrome.storage.session.get(this.LINES_KEY);
+      const all = /** @type {Record<string, string[]> | undefined} */ (stored[this.LINES_KEY]);
+      return all?.[String(tabId)] ?? [];
+    } catch (error) {
+      console.error('[LlamaVideoBlock] Failed to read diagnostics:', error);
+      return [];
+    }
+  },
+
+  /**
+   * @param {number} tabId
+   * @returns {Promise<void>}
+   */
+  async clearDebugLines(tabId) {
+    const stored = await chrome.storage.session.get(this.LINES_KEY);
+    const all = /** @type {Record<string, string[]> | undefined} */ (stored[this.LINES_KEY]);
+    if (!all || !(String(tabId) in all)) return;
+    delete all[String(tabId)];
+    await chrome.storage.session.set({ [this.LINES_KEY]: all });
+  },
+
   /**
    * @param {number} tabId
    * @returns {Promise<void>}

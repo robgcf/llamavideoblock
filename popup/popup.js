@@ -25,6 +25,9 @@
    * @property {HTMLElement} tallyValue
    * @property {HTMLElement} tallyLabel
    * @property {HTMLButtonElement} manage
+   * @property {HTMLElement} diag
+   * @property {HTMLElement} diagLog
+   * @property {HTMLButtonElement} diagCopy
    * @property {HTMLElement} live
    */
 
@@ -54,6 +57,9 @@
     tallyValue: requireElement('tally-value', HTMLElement),
     tallyLabel: requireElement('tally-label', HTMLElement),
     manage: requireElement('manage', HTMLButtonElement),
+    diag: requireElement('diag', HTMLElement),
+    diagLog: requireElement('diag-log', HTMLElement),
+    diagCopy: requireElement('diag-copy', HTMLButtonElement),
     live: requireElement('live', HTMLElement),
   };
 
@@ -64,6 +70,8 @@
    * @property {boolean} enabled
    * @property {string[]} whitelist
    * @property {number} blockedCount
+   * @property {boolean} debug diagnostics enabled from the options page
+   * @property {string[]} debugLines decisions recorded for this tab
    */
 
   /** @type {PopupState} */
@@ -73,6 +81,8 @@
     enabled: true,
     whitelist: [],
     blockedCount: 0,
+    debug: false,
+    debugLines: [],
   };
 
   /**
@@ -106,6 +116,11 @@
 
     ui.panel.dataset.enabled = String(state.enabled);
     ui.masterToggle.checked = state.enabled;
+
+    // textContent, never innerHTML — these lines contain page-supplied values such as
+    // element ids and media URLs.
+    ui.diag.hidden = !state.debug;
+    ui.diagLog.textContent = state.debugLines.join('\n');
 
     ui.host.textContent = state.hostname ?? 'Not a web page';
 
@@ -157,13 +172,15 @@
   async function load() {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      const { enabled, whitelist } = await LlamaVideoBlockStore.getSettings();
+      const { enabled, whitelist, debug } = await LlamaVideoBlockStore.getSettings();
 
       const tabId = tab?.id ?? null;
       const hostname = LlamaVideoBlockDomain.fromUrl(tab?.url);
       const blockedCount = tabId === null ? 0 : await LlamaVideoBlockStore.getTabCount(tabId);
+      const debugLines =
+        debug && tabId !== null ? await LlamaVideoBlockStore.getDebugLines(tabId) : [];
 
-      state = { tabId, hostname, enabled, whitelist, blockedCount };
+      state = { tabId, hostname, enabled, whitelist, blockedCount, debug, debugLines };
       render();
     } catch (error) {
       console.error('[LlamaVideoBlock] Failed to load popup state:', error);
@@ -227,6 +244,31 @@
       } catch (error) {
         console.error('[LlamaVideoBlock] Failed to update the whitelist:', error);
         ui.whitelistToggle.disabled = false;
+      }
+    })();
+  });
+
+  ui.diagCopy.addEventListener('click', () => {
+    void (async () => {
+      const report = [
+        `LlamaVideoBlock ${chrome.runtime.getManifest().version}`,
+        `site: ${state.hostname ?? '(none)'} | enabled: ${state.enabled} | ` +
+          `whitelisted: ${matchingEntry() !== null} | blocked: ${state.blockedCount}`,
+        `ua: ${navigator.userAgent}`,
+        '',
+        ...state.debugLines,
+      ].join('\n');
+
+      try {
+        await navigator.clipboard.writeText(report);
+        ui.diagCopy.textContent = 'Copied';
+        announce('Diagnostics copied to the clipboard');
+        setTimeout(() => {
+          ui.diagCopy.textContent = 'Copy';
+        }, 1500);
+      } catch (error) {
+        console.error('[LlamaVideoBlock] Could not copy diagnostics:', error);
+        ui.diagCopy.textContent = 'Failed';
       }
     })();
   });

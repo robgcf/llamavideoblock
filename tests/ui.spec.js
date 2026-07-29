@@ -15,18 +15,22 @@ import { test, expect, setSettings, BASE_URL, settle } from './helpers.js';
  *
  * @param {import('./helpers.js').Extension} extension
  * @param {string} tabUrl
+ * @param {number} [tabId] the tab the popup should believe it is attached to
  * @returns {Promise<import('@playwright/test').Page>}
  */
-async function openPopup(extension, tabUrl) {
+async function openPopup(extension, tabUrl, tabId = 42) {
   const page = await extension.context.newPage();
-  await page.addInitScript((url) => {
-    // Only the two fields the popup reads; the rest of chrome.tabs.Tab is irrelevant here.
-    const tabs = /** @type {chrome.tabs.Tab[]} */ (
-      /** @type {unknown} */ ([{ id: 42, url }])
-    );
-    chrome.tabs.query = async () => tabs;
-    chrome.tabs.reload = async () => {};
-  }, tabUrl);
+  await page.addInitScript(
+    ([url, id]) => {
+      // Only the two fields the popup reads; the rest of chrome.tabs.Tab is irrelevant.
+      const tabs = /** @type {chrome.tabs.Tab[]} */ (
+        /** @type {unknown} */ ([{ id, url }])
+      );
+      chrome.tabs.query = async () => tabs;
+      chrome.tabs.reload = async () => {};
+    },
+    /** @type {[string, number]} */ ([tabUrl, tabId]),
+  );
   await page.goto(`chrome-extension://${extension.id}/popup/popup.html`);
   return page;
 }
@@ -227,6 +231,33 @@ test('debug logging stays silent unless the toggle is on', async ({ extension })
   await page.reload();
   await settle(page);
   expect(logs.join('\n')).toContain('verdict for 127.0.0.1');
+});
+
+test('popup surfaces the decision log so diagnosing needs no DevTools', async ({
+  extension,
+}) => {
+  await extension.worker.evaluate(async () => chrome.storage.local.set({ debug: true }));
+
+  // A real page load, so the lines come from the blocker rather than being planted.
+  const site = await extension.context.newPage();
+  await site.goto(`${BASE_URL}/attr-video`);
+  await settle(site);
+
+  const tabId = await extension.worker.evaluate(async () => {
+    const stored = await chrome.storage.session.get('debugLines');
+    return Object.keys(stored.debugLines ?? {})[0];
+  });
+  expect(tabId, 'the content script should have reported decisions').toBeDefined();
+
+  const popup = await openPopup(extension, `${BASE_URL}/attr-video`, Number(tabId));
+  await expect(popup.locator('#diag')).toBeVisible();
+  await expect(popup.locator('#diag-log')).toContainText('verdict received');
+  await expect(popup.locator('#diag-log')).toContainText('autoplay attribute STRIPPED');
+});
+
+test('popup hides the decision log when diagnostics are off', async ({ extension }) => {
+  const popup = await openPopup(extension, 'https://www.youtube.com/watch?v=abc');
+  await expect(popup.locator('#diag')).toBeHidden();
 });
 
 test('options page follows whitelist changes made elsewhere', async ({ extension }) => {

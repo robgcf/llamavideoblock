@@ -242,6 +242,69 @@ body {
   color: var(--text-dim);
 }
 
+/* --------------------------------------------------------------- diagnostics */
+
+/* Only rendered when diagnostics are on, so this is a debugging surface rather than
+   part of the normal popup. Kept scrollable so the panel never grows unbounded. */
+.diag {
+  padding: 11px 14px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-sunken);
+}
+
+.diag__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.diag__copy {
+  padding: 3px 9px;
+  border: 1px solid var(--line-bright);
+  border-radius: 5px;
+  background: none;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 150ms var(--ease), border-color 150ms var(--ease);
+}
+
+.diag__copy:hover {
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+.diag__copy:focus-visible {
+  outline: 2px solid var(--amber-bright);
+  outline-offset: 2px;
+}
+
+.diag__log {
+  margin: 0;
+  max-height: 190px;
+  overflow: auto;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0b0908;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.diag__log:empty::before {
+  content: "No decisions recorded yet. Reload the page and reopen this popup.";
+  color: var(--text-faint);
+}
+
 /* --------------------------------------------------------------- footer */
 
 .footer {

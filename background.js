@@ -136,14 +136,24 @@ function queueCountWrite(write) {
 // ---------------------------------------------------------------------------
 
 chrome.runtime.onMessage.addListener((message, sender) => {
-  if (!message || typeof message !== 'object' || message.type !== 'blockedCount') return false;
+  if (!message || typeof message !== 'object') return false;
 
   const tabId = sender.tab?.id;
-  const count = Number(message.count);
-  if (tabId === undefined || !Number.isFinite(count)) return false;
+  if (tabId === undefined) return false;
 
-  const frameId = sender.frameId ?? 0;
-  queueCountWrite(() => LlamaVideoBlockStore.setFrameCount(tabId, frameId, count));
+  if (message.type === 'blockedCount') {
+    const count = Number(message.count);
+    if (!Number.isFinite(count)) return false;
+    const frameId = sender.frameId ?? 0;
+    queueCountWrite(() => LlamaVideoBlockStore.setFrameCount(tabId, frameId, count));
+    return false;
+  }
+
+  if (message.type === 'debugLines' && Array.isArray(message.lines)) {
+    // Same queue as the counters — both are read-modify-write against session storage,
+    // and every frame reports independently.
+    queueCountWrite(() => LlamaVideoBlockStore.appendDebugLines(tabId, message.lines));
+  }
   return false;
 });
 
@@ -164,6 +174,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // A fresh document means the previous page's blocked count is stale.
   if (changeInfo.status === 'loading') {
     queueCountWrite(() => LlamaVideoBlockStore.clearTabCount(tabId));
+    queueCountWrite(() => LlamaVideoBlockStore.clearDebugLines(tabId));
   }
   if (changeInfo.status || changeInfo.url) {
     void refreshBadge(tabId, tab.url);
@@ -172,6 +183,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   queueCountWrite(() => LlamaVideoBlockStore.clearTabCount(tabId));
+  queueCountWrite(() => LlamaVideoBlockStore.clearDebugLines(tabId));
 });
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
