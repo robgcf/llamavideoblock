@@ -6,7 +6,7 @@
  * UA stylesheet, and nothing in the extension's logic would notice.
  */
 
-import { test, expect, setSettings } from './helpers.js';
+import { test, expect, setSettings, BASE_URL, settle } from './helpers.js';
 
 /**
  * The popup reads the toolbar's owning tab. Opening popup.html directly as a tab would
@@ -182,6 +182,51 @@ test('clear all needs a second, deliberate confirmation', async ({ extension }) 
   await page.click('#clear-confirm');
   await expect(page.locator('#empty')).toBeVisible();
   await expect(page.locator('.row__domain')).toHaveCount(0);
+});
+
+test('diagnostics toggle is off by default and persists when turned on', async ({
+  extension,
+}) => {
+  const page = await openOptions(extension);
+
+  await expect(page.locator('#debug-toggle')).not.toBeChecked();
+
+  // The input is visually hidden behind its styled box, so click the label the way a
+  // user would rather than the input itself.
+  await page.click('label[for="debug-toggle"]');
+  await expect
+    .poll(() => extension.worker.evaluate(() => chrome.storage.local.get('debug')))
+    .toEqual({ debug: true });
+
+  // Survives a reload — it is a setting, not page state.
+  await page.reload();
+  await expect(page.locator('#debug-toggle')).toBeChecked();
+
+  // The input is visually hidden behind its styled box, so click the label the way a
+  // user would rather than the input itself.
+  await page.click('label[for="debug-toggle"]');
+  await expect
+    .poll(() => extension.worker.evaluate(() => chrome.storage.local.get('debug')))
+    .toEqual({ debug: false });
+});
+
+test('debug logging stays silent unless the toggle is on', async ({ extension }) => {
+  const page = await extension.context.newPage();
+  /** @type {string[]} */
+  const logs = [];
+  page.on('console', (message) => {
+    if (message.text().includes('LlamaVideoBlock')) logs.push(message.text());
+  });
+
+  await page.goto(`${BASE_URL}/attr-video`);
+  await settle(page);
+  expect(logs).toEqual([]);
+
+  // And speaks up when it is on.
+  await extension.worker.evaluate(async () => chrome.storage.local.set({ debug: true }));
+  await page.reload();
+  await settle(page);
+  expect(logs.join('\n')).toContain('verdict for 127.0.0.1');
 });
 
 test('options page follows whitelist changes made elsewhere', async ({ extension }) => {

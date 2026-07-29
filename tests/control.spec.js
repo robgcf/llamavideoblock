@@ -7,7 +7,9 @@
  * successful blocking.
  */
 
-import { test, expect, BASE_URL, FIXTURE_DOMAIN, setSettings, mediaState, settle } from './helpers.js';
+import {
+  test, expect, BASE_URL, FIXTURE_DOMAIN, setSettings, mediaState, settle, playResult,
+} from './helpers.js';
 
 /**
  * @param {import('@playwright/test').Page} page
@@ -48,7 +50,7 @@ test('allows a JS-initiated play() on a whitelisted domain', async ({ extension 
   await page.goto(`${BASE_URL}/js-play`);
   await settle(page);
 
-  const result = await page.evaluate(() => window.__playResult);
+  const result = await playResult(page);
   expect(result.ok).toBe(true);
   expect((await mediaState(page, '#media')).paused).toBe(false);
 });

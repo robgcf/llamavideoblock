@@ -6,7 +6,7 @@
  * Read the two files together.
  */
 
-import { test, expect, BASE_URL, mediaState, settle } from './helpers.js';
+import { test, expect, BASE_URL, mediaState, settle, playResult } from './helpers.js';
 
 test('pauses a video with the autoplay attribute and strips the attribute', async ({
   extension,
@@ -38,7 +38,7 @@ test('rejects a JS-initiated play() with NotAllowedError', async ({ extension })
   await page.goto(`${BASE_URL}/js-play`);
   await settle(page);
 
-  const result = await page.evaluate(() => window.__playResult);
+  const result = await playResult(page);
   expect(result.settled).toBe(true);
   expect(result.ok).toBe(false);
   // The exact error Chrome's own autoplay policy throws. Sites already handle it, so they
@@ -83,6 +83,6 @@ test('allows playback started by a real user click', async ({ extension }) => {
     })
     .toBe(false);
 
-  const result = await page.evaluate(() => window.__playResult);
+  const result = await playResult(page);
   expect(result.ok).toBe(true);
 });

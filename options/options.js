@@ -35,6 +35,7 @@
     confirm: requireElement('confirm', HTMLElement),
     clearConfirm: requireElement('clear-confirm', HTMLButtonElement),
     clearCancel: requireElement('clear-cancel', HTMLButtonElement),
+    debugToggle: requireElement('debug-toggle', HTMLInputElement),
     live: requireElement('live', HTMLElement),
   };
 
@@ -105,6 +106,7 @@
    */
   async function load() {
     whitelist = await LlamaVideoBlockStore.getWhitelist();
+    ui.debugToggle.checked = await LlamaVideoBlockStore.isDebug();
     render();
   }
 
@@ -191,6 +193,19 @@
       } catch (error) {
         console.error('[LlamaVideoBlock] Failed to clear the whitelist:', error);
         showError('Could not clear the whitelist. Try again.');
+      }
+    })();
+  });
+
+  ui.debugToggle.addEventListener('change', () => {
+    void (async () => {
+      const debug = ui.debugToggle.checked;
+      try {
+        await LlamaVideoBlockStore.setDebug(debug);
+        announce(debug ? 'Diagnostic logging on' : 'Diagnostic logging off');
+      } catch (error) {
+        console.error('[LlamaVideoBlock] Failed to change the debug flag:', error);
+        ui.debugToggle.checked = !debug;
       }
     })();
   });

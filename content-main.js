@@ -44,6 +44,59 @@
   /** @type {ReturnType<typeof setTimeout> | null} */
   let countReportTimer = null;
 
+  // ---------------------------------------------------------------------------
+  // Diagnostics
+  //
+  // Off by default. The interesting decisions all happen before the verdict arrives,
+  // which is also before we know whether logging is wanted — so every decision is
+  // recorded to a bounded buffer regardless, and the buffer is dumped if the verdict
+  // says debug is on. Costs a string per decision on a normal page load.
+  // ---------------------------------------------------------------------------
+
+  let debug = false;
+  /** @type {string[]} */
+  const debugBuffer = [];
+  const MAX_DEBUG_LINES = 300;
+
+  /**
+   * @param {HTMLMediaElement} element
+   * @returns {string}
+   */
+  function describe(element) {
+    const source = element.currentSrc || element.src || '(no src)';
+    const id = element.id ? `#${element.id}` : '';
+    const cls = element.className ? `.${String(element.className).split(/\s+/)[0]}` : '';
+    return `${element.tagName.toLowerCase()}${id}${cls} src=${source.slice(0, 60)} ` +
+      `readyState=${element.readyState} paused=${element.paused}`;
+  }
+
+  /**
+   * @param {string} message
+   * @param {string} [detail]
+   * @returns {void}
+   */
+  function trace(message, detail) {
+    const line =
+      `+${Math.round(performance.now())}ms [${window === window.top ? 'top' : 'frame'}] ` +
+      `${message}${detail ? ` — ${detail}` : ''}`;
+
+    if (debug) {
+      console.log('%c[LlamaVideoBlock]', 'color:#eda13c;font-weight:bold', line);
+      return;
+    }
+    if (debugBuffer.length < MAX_DEBUG_LINES) debugBuffer.push(line);
+  }
+
+  /**
+   * Who called `play()`. The immediate frames are ours, so they are dropped.
+   *
+   * @returns {string}
+   */
+  function callerFrames() {
+    const stack = new Error().stack ?? '';
+    return stack.split('\n').slice(2, 5).map((frame) => frame.trim()).join(' <- ');
+  }
+
   // Captured before page script gets a chance to replace them, so our own bookkeeping
   // can't be observed or hijacked by the page.
   const mediaProto = HTMLMediaElement.prototype;
@@ -111,7 +164,20 @@
   }
 
   mediaProto.play = function play() {
-    if (!blocking || hasUserActivation()) return nativePlay.call(this);
+    const activation = hasUserActivation();
+    trace(
+      `play() called — blocking=${blocking} userActivation=${activation} settled=${settled}`,
+      `${describe(this)} | from: ${callerFrames()}`,
+    );
+
+    if (!blocking) {
+      trace('play() ALLOWED — not blocking on this page');
+      return nativePlay.call(this);
+    }
+    if (activation) {
+      trace('play() ALLOWED — transient user activation was live');
+      return nativePlay.call(this);
+    }
 
     // `wantedPlay` stays false: if the verdict turns out to be "allowed", this element is
     // started by its own deferred promise below rather than by the bulk restore.
@@ -120,8 +186,11 @@
     stripAutoplay(this);
 
     if (settled || deferredPlays.length >= MAX_TRACKED_ELEMENTS) {
+      trace('play() BLOCKED — rejected with NotAllowedError');
       return Promise.reject(notAllowedError());
     }
+
+    trace('play() HELD — waiting for the whitelist verdict before settling this promise');
 
     const element = this;
     return new Promise((resolve, reject) => {
@@ -208,6 +277,7 @@
 
     const declaredAutoplay = hasAttribute.call(element, 'autoplay');
     if (declaredAutoplay) {
+      trace('autoplay attribute STRIPPED', describe(element));
       remember(element, false);
       countBlocked(element);
       stripAutoplay(element);
@@ -215,6 +285,7 @@
 
     // Media may already have started between insertion and this callback.
     if (!element.paused && !hasUserActivation()) {
+      trace('already playing on discovery — PAUSED', describe(element));
       remember(element, true);
       countBlocked(element);
       nativePause.call(element);
@@ -275,11 +346,18 @@
     if (!blocking) return;
 
     const element = event.target;
-    if (!(element instanceof HTMLMediaElement)) return;
+    if (!(element instanceof HTMLMediaElement)) {
+      trace(`play event from a NON-media target — ${String(event.target)}`);
+      return;
+    }
     // A human pressing the element's native controls does not route through the patched
     // play(), so without this check we would instantly undo their click.
-    if (hasUserActivation()) return;
+    if (hasUserActivation()) {
+      trace('play event ALLOWED — transient user activation was live', describe(element));
+      return;
+    }
 
+    trace('play event caught by the safety net — PAUSING', describe(element));
     remember(element, true);
     countBlocked(element);
     stripAutoplay(element);
@@ -287,6 +365,21 @@
   }
 
   document.addEventListener('play', onPlayEvent, true);
+
+  // Diagnostics only: tells us playback actually started, which is the thing we are trying
+  // to explain when a site wins anyway. Never intervenes.
+  document.addEventListener(
+    'playing',
+    (event) => {
+      if (event.target instanceof HTMLMediaElement) {
+        trace(
+          `MEDIA IS PLAYING — blocking=${blocking} userActivation=${hasUserActivation()}`,
+          describe(event.target),
+        );
+      }
+    },
+    true,
+  );
 
   // ---------------------------------------------------------------------------
   // Verdict handling
@@ -333,6 +426,18 @@
     if (settled) return;
     settled = true;
 
+    // Flush what happened before we knew logging was wanted, then carry on live.
+    if (debug && debugBuffer.length > 0) {
+      console.groupCollapsed(
+        `%c[LlamaVideoBlock] ${debugBuffer.length} decisions before the verdict`,
+        'color:#eda13c;font-weight:bold',
+      );
+      for (const line of debugBuffer) console.log(line);
+      console.groupEnd();
+    }
+    debugBuffer.length = 0;
+    trace(`verdict received — blocking=${shouldBlock}`);
+
     if (shouldBlock) {
       // Nothing to undo, and the log would otherwise grow for the life of the page.
       originals.clear();
@@ -355,6 +460,9 @@
     const data = event.data;
     if (!data || typeof data !== 'object') return;
     if (data.channel !== VERDICT_CHANNEL) return;
+
+    // Set before applying, so the buffered decisions get flushed.
+    debug = data.debug === true;
 
     // First verdict wins. Page script can see this channel and could forge a message, but
     // it would have to beat our own document_start script to do so.

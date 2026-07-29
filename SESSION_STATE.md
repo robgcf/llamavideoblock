@@ -119,6 +119,40 @@ settings.
 
 ---
 
+## OPEN BUG: YouTube autoplays for Rob despite being blocked
+
+**Symptom (Rob, Brave 150, signed in to YouTube):** opens his feed, right-click → open in
+new tab, switches to the tab, video is playing. Also plays when clicking a thumbnail
+directly. Popup shows **BLOCKED**, whitelist empty, master toggle on, tally reads 1.
+
+**Not the cause** — ruled out with evidence, do not re-litigate:
+- Not the whitelist and not the master toggle (popup pill reads BLOCKED, list is empty).
+- Not Brave. A fresh Brave 150 profile blocks his exact URL correctly, with a control run
+  proving the video autoplays with the extension off.
+- Not a background-tab race. Reproduced his open-in-background-then-switch flow in Brave:
+  YouTube calls `play()` twice, both rejected, video stays paused.
+
+**Tally note:** blocked counts are per *element* (`counted` WeakSet), so "1" means one
+element was blocked at least once, not one attempt. It is not evidence of a single block.
+
+**Remaining difference:** Rob is signed in to YouTube; every reproduction attempt here is
+signed out, and YouTube's signed-out home feed is empty under automation. Signed-in player
+code paths are unverified.
+
+⚠️ **A first attempt at diagnosing this was wrong and was retracted.** The initial YouTube
+script omitted `--autoplay-policy=no-user-gesture-required`, so Chrome's own policy blocked
+autoplay in a zero-engagement profile and the run "passed" without LlamaVideoBlock doing
+anything. Any future YouTube diagnostic MUST pass that flag and MUST include an
+extension-off control run, exactly like `tests/control.spec.js`.
+
+**Next step:** Rob turns on Diagnostics in the options page, reproduces, and sends the
+console output. The log shows every decision with the calling stack — the key thing to look
+for is whether `play()` is being **ALLOWED — transient user activation was live**, or
+whether playback starts with no `play()` call logged at all, which would mean a path we do
+not intercept.
+
+---
+
 ## Unresolved questions
 
 - **Icon art** — commissioned 3D cement block with platform logos is still outstanding

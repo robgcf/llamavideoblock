@@ -54,10 +54,11 @@
 
   /**
    * @param {boolean} blocking
+   * @param {boolean} debug
    * @returns {void}
    */
-  function sendVerdict(blocking) {
-    window.postMessage({ channel: VERDICT_CHANNEL, blocking }, '*');
+  function sendVerdict(blocking, debug) {
+    window.postMessage({ channel: VERDICT_CHANNEL, blocking, debug }, '*');
   }
 
   /**
@@ -69,12 +70,25 @@
    */
   async function resolveVerdict() {
     try {
-      const { enabled, whitelist } = await LlamaVideoBlockStore.getSettings();
+      const { enabled, whitelist, debug } = await LlamaVideoBlockStore.getSettings();
       const hostname = currentHostname();
-      sendVerdict(enabled && !LlamaVideoBlockDomain.isWhitelisted(whitelist, hostname));
+      const whitelisted = LlamaVideoBlockDomain.isWhitelisted(whitelist, hostname);
+      const blocking = enabled && !whitelisted;
+
+      if (debug) {
+        console.log(
+          '%c[LlamaVideoBlock]',
+          'color:#eda13c;font-weight:bold',
+          `verdict for ${hostname ?? '(no host)'} — blocking=${blocking} ` +
+            `(enabled=${enabled} whitelisted=${whitelisted}) ` +
+            `frame=${window === window.top ? 'top' : location.href.slice(0, 80)}`,
+        );
+      }
+
+      sendVerdict(blocking, debug);
     } catch (error) {
       console.error('[LlamaVideoBlock] Could not resolve verdict, staying blocked:', error);
-      sendVerdict(true);
+      sendVerdict(true, false);
     }
   }
 

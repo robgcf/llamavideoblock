@@ -137,3 +137,22 @@ export async function mediaState(scope, selector) {
 export async function settle(page) {
   await page.waitForTimeout(1200);
 }
+
+/**
+ * How the fixture page's `play()` promise settled.
+ *
+ * Waits for it rather than reading once. `paused` flips to false slightly before the
+ * promise resolves, so a test that polls on `paused` and then reads this immediately can
+ * catch it mid-flight — which showed up as an intermittent failure.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<{ settled: boolean, ok?: boolean, name?: string | null }>}
+ */
+export async function playResult(page) {
+  await expect
+    .poll(() => page.evaluate(() => window.__playResult.settled), {
+      message: 'the page\'s play() promise should settle',
+    })
+    .toBe(true);
+  return page.evaluate(() => window.__playResult);
+}

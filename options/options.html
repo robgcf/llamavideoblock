@@ -69,6 +69,26 @@
         </div>
       </section>
 
+      <section class="card">
+        <div class="card__head">
+          <p class="micro">Diagnostics</p>
+        </div>
+
+        <label class="check" for="debug-toggle">
+          <input class="check__input" type="checkbox" id="debug-toggle" />
+          <span class="check__box" aria-hidden="true"></span>
+          <span class="check__text">
+            <span class="check__title">Log blocking decisions to the console</span>
+            <span class="check__hint">
+              Off by default. When on, LlamaVideoBlock explains every decision it makes in
+              the page's DevTools console — which layer fired, whether a user gesture was
+              live, and what the whitelist verdict was. Reload the page after turning this
+              on. Leave it off for normal use.
+            </span>
+          </span>
+        </label>
+      </section>
+
       <p class="colophon">LlamaVideoBlock — Axys Software LLC</p>
       <p class="live" id="live" role="status" aria-live="polite"></p>
     </div>

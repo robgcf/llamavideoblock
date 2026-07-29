@@ -285,6 +285,81 @@ body {
   color: var(--text-dim);
 }
 
+/* --------------------------------------------------------------- checkbox */
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin-top: 12px;
+  cursor: pointer;
+}
+
+.check__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.check__box {
+  flex: none;
+  position: relative;
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+  border: 1px solid var(--line-bright);
+  border-radius: 5px;
+  background: var(--surface-sunken);
+  transition: background 150ms var(--ease), border-color 150ms var(--ease);
+}
+
+.check__box::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5.5px;
+  width: 4px;
+  height: 8px;
+  border: solid #20180d;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 160ms var(--ease);
+}
+
+.check__input:checked + .check__box {
+  background: var(--amber);
+  border-color: var(--amber);
+}
+
+.check__input:checked + .check__box::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.check__input:focus-visible + .check__box {
+  outline: 2px solid var(--amber-bright);
+  outline-offset: 2px;
+}
+
+.check__text {
+  display: block;
+}
+
+.check__title {
+  display: block;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.check__hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-faint);
+}
+
 /* --------------------------------------------------------------- colophon */
 
 .colophon {

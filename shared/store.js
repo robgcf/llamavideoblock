@@ -17,6 +17,7 @@ const LlamaVideoBlockStore = {
   WHITELIST_KEY: 'whitelist',
   ENABLED_KEY: 'enabled',
   COUNTS_KEY: 'blockCounts',
+  DEBUG_KEY: 'debug',
 
   /**
    * @returns {Promise<string[]>}
@@ -67,14 +68,42 @@ const LlamaVideoBlockStore = {
   },
 
   /**
-   * Both settings in one hop. This is the content script's hot path — it runs on every
-   * frame of every page load, and the two stores are read in parallel.
+   * Diagnostic logging. Off by default; turned on from the options page when a site is
+   * misbehaving and we need to see which layer fired and why.
    *
-   * @returns {Promise<{ enabled: boolean, whitelist: string[] }>}
+   * @returns {Promise<boolean>}
+   */
+  async isDebug() {
+    try {
+      const stored = await chrome.storage.local.get(this.DEBUG_KEY);
+      return stored[this.DEBUG_KEY] === true;
+    } catch (error) {
+      console.error('[LlamaVideoBlock] Failed to read the debug flag:', error);
+      return false;
+    }
+  },
+
+  /**
+   * @param {boolean} debug
+   * @returns {Promise<void>}
+   */
+  async setDebug(debug) {
+    await chrome.storage.local.set({ [this.DEBUG_KEY]: debug });
+  },
+
+  /**
+   * Everything the content script needs, in one hop. This is the hot path — it runs on
+   * every frame of every page load, and the reads go out in parallel.
+   *
+   * @returns {Promise<{ enabled: boolean, whitelist: string[], debug: boolean }>}
    */
   async getSettings() {
-    const [enabled, whitelist] = await Promise.all([this.isEnabled(), this.getWhitelist()]);
-    return { enabled, whitelist };
+    const [enabled, whitelist, debug] = await Promise.all([
+      this.isEnabled(),
+      this.getWhitelist(),
+      this.isDebug(),
+    ]);
+    return { enabled, whitelist, debug };
   },
 
   /**
