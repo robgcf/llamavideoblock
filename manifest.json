@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LlamaVideoBlock",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Blocks video and audio autoplay on all sites. Simple on/off toggle with per-site whitelist.",
   "author": "Axys Software LLC",
   "minimum_chrome_version": "111",

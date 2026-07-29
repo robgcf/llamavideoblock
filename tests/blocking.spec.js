@@ -68,6 +68,22 @@ test('blocks media inside a same-origin iframe', async ({ extension }) => {
   expect(state.paused).toBe(true);
 });
 
+test('a stale user gesture does not permit autoplay', async ({ extension }) => {
+  // The failure Rob hit on YouTube: something the user did earlier was still being treated
+  // as consent when the player got round to autoplaying seconds later.
+  const page = await extension.context.newPage();
+  await page.goto(`${BASE_URL}/delayed-play`);
+  await settle(page);
+
+  await page.click('#go');
+  await page.waitForTimeout(3500); // past the click, past the delayed play()
+
+  expect((await mediaState(page, '#media')).paused).toBe(true);
+  const stale = await playResult(page);
+  expect(stale.ok).toBe(false);
+  expect(stale.name).toBe('NotAllowedError');
+});
+
 test('allows playback started by a real user click', async ({ extension }) => {
   const page = await extension.context.newPage();
   await page.goto(`${BASE_URL}/user-click`);

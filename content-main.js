@@ -178,15 +178,40 @@
   }
 
   /**
-   * Best available signal for "a human caused this". Correctly false during page load and
-   * true for a real click. Transient activation lasts a few seconds, so a site can slip an
-   * autoplay through shortly after an unrelated click — an accepted trade, since without
-   * this check every play button on the web would break.
+   * "Did a human just do something here?"
    *
+   * We track trusted input events ourselves rather than asking
+   * `navigator.userActivation.isActive`. That API turned out to be unusable for this:
+   * measured in Brave, it reports `true` on a page that has received no input at all,
+   * including while the tab is still in the background. Trusting it meant YouTube's
+   * deferred autoplay sailed through the moment you switched to the tab.
+   *
+   * The window is short on purpose. Measured on YouTube, clicking the player's own play
+   * control calls `play()` 211ms later, while autoplay after a navigation arrives seconds
+   * after the click that started it — so a one-second window separates "the user pressed
+   * play" from "the user clicked a link and something started playing", without needing to
+   * guess which element the click was aimed at.
+   */
+  const GESTURE_WINDOW_MS = 1000;
+  /** Timestamp of the last trusted user input, on the `performance.now()` clock. */
+  let lastGestureAt = Number.NEGATIVE_INFINITY;
+
+  for (const type of ['pointerdown', 'mousedown', 'keydown', 'touchstart']) {
+    window.addEventListener(
+      type,
+      (event) => {
+        // isTrusted separates real input from anything the page synthesises for itself.
+        if (event.isTrusted) lastGestureAt = performance.now();
+      },
+      { capture: true, passive: true },
+    );
+  }
+
+  /**
    * @returns {boolean}
    */
   function hasUserActivation() {
-    return navigator.userActivation?.isActive === true;
+    return performance.now() - lastGestureAt < GESTURE_WINDOW_MS;
   }
 
   mediaProto.play = function play() {
@@ -201,7 +226,7 @@
       return nativePlay.call(this);
     }
     if (activation) {
-      trace('play() ALLOWED — transient user activation was live');
+      trace('play() ALLOWED — a real user gesture was seen moments ago');
       return nativePlay.call(this);
     }
 
@@ -379,7 +404,7 @@
     // A human pressing the element's native controls does not route through the patched
     // play(), so without this check we would instantly undo their click.
     if (hasUserActivation()) {
-      trace('play event ALLOWED — transient user activation was live', describe(element));
+      trace('play event ALLOWED — a real user gesture was seen moments ago', describe(element));
       return;
     }
 

@@ -87,14 +87,46 @@ button and stop, instead of breaking or entering a retry loop.
 
 ### User-gesture detection
 
-`navigator.userActivation.isActive`. Accurate for real clicks, correctly false during page load.
-Accepted limitation: transient activation lasts ~5s, so a site has a short window after any user
-interaction in which it could slip an autoplay through. Rare in practice, and the alternative
-(no gesture detection) would break every play button on the web.
+**Revised 2026-07-29 after a confirmed field failure. Do not revert to
+`navigator.userActivation`.**
+
+The original design used `navigator.userActivation.isActive`. That is wrong, and for a worse
+reason than "slightly loose": measured in Brave 150, the API reports `isActive: true` on a page
+that has received **no input events at all**, including while the tab is still in the background.
+It is not a usable proxy for "a human did something here".
+
+The field symptom: opening a YouTube video in a background tab and switching to it played the
+video. Rob's diagnostics showed both layers standing aside with `userActivation=true`, eleven
+seconds into the document, with no interaction having reached the page.
+
+**What we do instead.** A capture-phase, passive listener on `window` for `pointerdown`,
+`mousedown`, `keydown` and `touchstart` records `performance.now()` whenever `event.isTrusted` —
+so only real input counts, never anything a page synthesises for itself. A gesture permits
+`play()` for **`GESTURE_WINDOW_MS` (1000ms)** afterwards.
+
+The window is short deliberately, and the number is measured rather than guessed:
+
+| Scenario | Click → `play()` |
+| --- | --- |
+| Clicking YouTube's own play control | 211ms |
+| Autoplay after switching to a background tab | no input event at all |
+| Autoplay after a navigation | seconds after the originating click |
+
+One second leaves roughly 5× headroom over a genuine play-button press while still excluding
+autoplay that arrives after a navigation. It also avoids having to guess *which element* a click
+was aimed at — an approach considered and rejected, because on a simple page a play button beside
+a video is indistinguishable by DOM position from any other link.
+
+Known limits, accepted for v1:
+
+- A player that does more than a second of async work between its play button and the actual
+  `play()` call will be blocked and need a second press.
+- A gesture in a parent document is not visible inside a cross-document iframe, so a play overlay
+  outside the frame will not permit playback within it.
 
 Native video controls do not route through the JS-visible `play()`, so clicking a video's own
-controls is unaffected by the override. The capture-phase listener checks user activation for the
-same reason — without it, clicking native controls would be instantly undone.
+controls is unaffected by the override. The capture-phase listener applies the same gesture rule
+for the same reason — without it, clicking native controls would be instantly undone.
 
 ---
 

@@ -1,7 +1,7 @@
 # LlamaVideoBlock — Session State
 
 **Project:** LlamaVideoBlock (Chrome extension, autoplay blocker)
-**Path:** `~/code/LlamaVideoBlock`
+**Path:** `~/code/LlamaBlock` (folder keeps the pre-rename name — see Build state)
 **Last updated:** 2026-07-29
 **Model this session:** Opus 5
 
@@ -25,7 +25,7 @@ Everything in the spec is implemented:
 - Chrome Web Store packaging script
 
 **Build:** typecheck clean, 0 errors, 0 warnings.
-**Tests:** 33 Playwright tests, all passing.
+**Tests:** 38 Playwright tests, all passing.
 
 ---
 
@@ -119,37 +119,43 @@ settings.
 
 ---
 
-## OPEN BUG: YouTube autoplays for Rob despite being blocked
+## FIXED 2026-07-29: YouTube autoplayed despite being blocked
 
-**Symptom (Rob, Brave 150, signed in to YouTube):** opens his feed, right-click → open in
-new tab, switches to the tab, video is playing. Also plays when clicking a thumbnail
-directly. Popup shows **BLOCKED**, whitelist empty, master toggle on, tally reads 1.
+**Root cause:** `navigator.userActivation.isActive` is not a usable proxy for "a human did
+something on this page". Measured in Brave 150, it reports `true` on a page that has
+received **no input events at all**, including while the tab is still backgrounded. Both
+blocking layers consulted it, so both stood aside.
 
-**Not the cause** — ruled out with evidence, do not re-litigate:
-- Not the whitelist and not the master toggle (popup pill reads BLOCKED, list is empty).
-- Not Brave. A fresh Brave 150 profile blocks his exact URL correctly, with a control run
-  proving the video autoplays with the extension off.
-- Not a background-tab race. Reproduced his open-in-background-then-switch flow in Brave:
-  YouTube calls `play()` twice, both rejected, video stays paused.
+Rob's diagnostics, from the popup panel, were decisive:
 
-**Tally note:** blocked counts are per *element* (`counted` WeakSet), so "1" means one
-element was blocked at least once, not one attempt. It is not evidence of a single block.
+```
++10985ms play() called - blocking=true userActivation=true
+  from: Mq9.playVideo (YouTube player)
++10985ms play() ALLOWED - transient user activation was live
++12202ms MEDIA IS PLAYING
+```
 
-**Remaining difference:** Rob is signed in to YouTube; every reproduction attempt here is
-signed out, and YouTube's signed-out home feed is empty under automation. Signed-in player
-code paths are unverified.
+Eleven seconds into the document, no interaction having reached the page, `blocked: 0`.
 
-⚠️ **A first attempt at diagnosing this was wrong and was retracted.** The initial YouTube
-script omitted `--autoplay-policy=no-user-gesture-required`, so Chrome's own policy blocked
-autoplay in a zero-engagement profile and the run "passed" without LlamaVideoBlock doing
-anything. Any future YouTube diagnostic MUST pass that flag and MUST include an
-extension-off control run, exactly like `tests/control.spec.js`.
+**Fix:** track trusted DOM input events ourselves — capture-phase, passive listeners on
+`window` for `pointerdown`/`mousedown`/`keydown`/`touchstart`, gated on `event.isTrusted` —
+and permit `play()` only within `GESTURE_WINDOW_MS` (1000ms) of one. `navigator.userActivation`
+is no longer consulted anywhere. **Do not reintroduce it.**
 
-**Next step:** Rob turns on Diagnostics in the options page, reproduces, and sends the
-console output. The log shows every decision with the calling stack — the key thing to look
-for is whether `play()` is being **ALLOWED — transient user activation was live**, or
-whether playback starts with no `play()` call logged at all, which would mean a path we do
-not intercept.
+The 1000ms figure is measured, not guessed: clicking YouTube's own play control calls
+`play()` 211ms later, while post-navigation autoplay arrives seconds after the click that
+caused it. Details and rejected alternatives are in the design doc.
+
+Regression cover: `a stale user gesture does not permit autoplay` in `tests/blocking.spec.js`,
+against the new `/delayed-play` fixture (real click, `play()` 2.5s later).
+
+⚠️ **Not yet confirmed by Rob.** Verified here in Brave 150 on his exact URL, including the
+background-tab-then-switch flow — blocked, with the trace now reading `userActivation=false`
+while the browser API still says `true`. His signed-in profile remains untested.
+
+**Watch for the new failure mode:** a play button that does more than a second of async work
+before calling `play()` will now need a second press. If Rob hits that on a real site, the
+window is one constant in `content-main.js`.
 
 ---
 
@@ -197,7 +203,7 @@ come out with it. Console cleanliness on a top-10 site probably wins, but it is 
 
 ## Build state
 
-- **Last commit:** `8b1cb65` — Build LlamaVideoBlock v1: autoplay blocker for video and audio
+- **Last commit:** see `git log` — v1.1.0 (user-gesture fix)
 - **Typecheck:** PASS — 0 errors, 0 warnings
 - **Tests:** 33 passing, 0 failing
 - **Extension console:** clean — no errors or warnings from the service worker, content

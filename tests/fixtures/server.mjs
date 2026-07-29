@@ -131,6 +131,22 @@ const PAGES = {
     </script>
   `),
 
+  // A click, then playback attempted long afterwards — the shape of "user clicked a
+  // thumbnail, navigation happened, and the player autoplayed seconds later". The click is
+  // real, but by the time play() arrives it is stale and must not count as consent.
+  '/delayed-play': page(`
+    <video id="media" src="/media.wav"></video>
+    <button id="go" type="button">Click me</button>
+    <script>
+      ${PLAY_PROBE}
+      document.getElementById('go').addEventListener('click', function () {
+        setTimeout(function () {
+          probe(document.getElementById('media').play());
+        }, 2500);
+      });
+    </script>
+  `),
+
   // Two elements, so the blocked tally has something to add up.
   '/two-videos': page(`
     <video id="media" src="/media.wav" autoplay></video>
