@@ -78,12 +78,13 @@
           <input class="check__input" type="checkbox" id="debug-toggle" />
           <span class="check__box" aria-hidden="true"></span>
           <span class="check__text">
-            <span class="check__title">Log blocking decisions to the console</span>
+            <span class="check__title">Record blocking decisions</span>
             <span class="check__hint">
-              Off by default. When on, LlamaVideoBlock explains every decision it makes in
-              the page's DevTools console — which layer fired, whether a user gesture was
-              live, and what the whitelist verdict was. Reload the page after turning this
-              on. Leave it off for normal use.
+              Off by default. When on, LlamaVideoBlock explains every decision it makes —
+              which layer fired, whether a user gesture was live, and what the whitelist
+              verdict was. The decisions appear in a Diagnostics panel in the toolbar
+              popup, with a Copy button, and also in the page's DevTools console. Reload
+              the page after turning this on. Leave it off for normal use.
             </span>
           </span>
         </label>
