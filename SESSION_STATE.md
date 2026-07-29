@@ -153,6 +153,26 @@ not intercept.
 
 ---
 
+## KNOWN ISSUE (deferred): console spam from `match_about_blank`
+
+On YouTube, the extension produces `Blocked script execution in 'about:blank' because the
+document's frame is sandboxed` errors — one per sandboxed ad frame, so dozens over a real
+session. **Measured, not guessed:** same page in Brave, extension ON = 1 error, extension
+OFF = 0.
+
+Cause: `match_about_blank: true` on the MAIN-world content script. MAIN-world scripts
+execute as page scripts, and a sandboxed frame without `allow-scripts` forbids that.
+
+Deliberately **not fixed yet** — it is cosmetic, and changing behaviour while the YouTube
+autoplay bug is still open would mean Rob tests a moving target. Fix after that closes.
+
+The trade-off when we do: dropping `match_about_blank` loses blocking inside `about:blank`
+and `about:srcdoc` iframes (rare — and sandboxed ones cannot run media scripts anyway), and
+makes the `location.ancestorOrigins` fallback in `content-isolated.js` dead code that should
+come out with it. Console cleanliness on a top-10 site probably wins, but it is Rob's call.
+
+---
+
 ## Unresolved questions
 
 - **Icon art** — commissioned 3D cement block with platform logos is still outstanding
