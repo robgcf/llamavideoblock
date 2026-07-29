@@ -1,5 +1,5 @@
 /**
- * LlamaBlock — ISOLATED-world bridge.
+ * LlamaVideoBlock — ISOLATED-world bridge.
  *
  * `content-main.js` blocks first and asks later. This is the "later": read the whitelist
  * and master toggle, work out whether this frame should be blocking, and tell the MAIN
@@ -8,14 +8,14 @@
  *
  * Loaded after `shared/domain.js` and `shared/store.js`, which share this world's scope.
  *
- * @see docs/superpowers/specs/2026-07-29-llamablock-design.md
+ * @see docs/superpowers/specs/2026-07-29-llamavideoblock-design.md
  */
 
 (() => {
   'use strict';
 
-  const VERDICT_CHANNEL = 'llamablock:verdict';
-  const COUNT_CHANNEL = 'llamablock:count';
+  const VERDICT_CHANNEL = 'llamavideoblock:verdict';
+  const COUNT_CHANNEL = 'llamavideoblock:count';
   /** The count is cosmetic and page-visible, so clamp rather than trust it. */
   const MAX_REPORTED_COUNT = 9999;
 
@@ -29,7 +29,7 @@
    * @returns {string | null}
    */
   function currentHostname() {
-    const own = LlamaBlockDomain.fromUrl(location.href);
+    const own = LlamaVideoBlockDomain.fromUrl(location.href);
     if (own) return own;
 
     const ancestors = location.ancestorOrigins;
@@ -37,7 +37,7 @@
 
     // Index 0 is the immediate parent, so this walks outward and takes the nearest match.
     for (let i = 0; i < ancestors.length; i++) {
-      const host = LlamaBlockDomain.fromUrl(ancestors.item(i));
+      const host = LlamaVideoBlockDomain.fromUrl(ancestors.item(i));
       if (host) return host;
     }
     return null;
@@ -69,11 +69,11 @@
    */
   async function resolveVerdict() {
     try {
-      const { enabled, whitelist } = await LlamaBlockStore.getSettings();
+      const { enabled, whitelist } = await LlamaVideoBlockStore.getSettings();
       const hostname = currentHostname();
-      sendVerdict(enabled && !LlamaBlockDomain.isWhitelisted(whitelist, hostname));
+      sendVerdict(enabled && !LlamaVideoBlockDomain.isWhitelisted(whitelist, hostname));
     } catch (error) {
-      console.error('[LlamaBlock] Could not resolve verdict, staying blocked:', error);
+      console.error('[LlamaVideoBlock] Could not resolve verdict, staying blocked:', error);
       sendVerdict(true);
     }
   }
@@ -89,7 +89,7 @@
       // Rejects if the service worker is mid-restart; the next report supersedes it.
       chrome.runtime.sendMessage(message).catch(() => {});
     } catch (error) {
-      console.error('[LlamaBlock] Could not report blocked count:', error);
+      console.error('[LlamaVideoBlock] Could not report blocked count:', error);
     }
   }
 

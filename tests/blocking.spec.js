@@ -2,7 +2,7 @@
  * Core blocking behaviour (spec §2, §3).
  *
  * Every "did not play" assertion in this file is only meaningful because
- * `control.spec.js` proves the same fixtures *do* autoplay when LlamaBlock stands down.
+ * `control.spec.js` proves the same fixtures *do* autoplay when LlamaVideoBlock stands down.
  * Read the two files together.
  */
 

@@ -1,4 +1,4 @@
-# LlamaBlock
+# LlamaVideoBlock
 
 Chrome extension that blocks video and audio autoplay on every site, with a per-site
 whitelist. Site-agnostic — no per-platform special cases.
@@ -25,7 +25,7 @@ The repository *is* the extension. There is nothing to compile.
 | `npm run test:headed` | Same, with a visible browser. |
 | `npm run check` | Typecheck then tests. The gate before any commit. |
 | `npm run icons` | Regenerate the placeholder icons. |
-| `npm run package` | Build `dist/llamablock-<version>.zip` for the Chrome Web Store. |
+| `npm run package` | Build `dist/llamavideoblock-<version>.zip` for the Chrome Web Store. |
 
 ## How the blocking works
 
@@ -47,7 +47,7 @@ via a `MutationObserver`, and a capture-phase `play` listener as a safety net. B
 autoplay policy throws — so sites fall back to a play button instead of breaking.
 
 Full reasoning, including what was deliberately not done:
-[`docs/superpowers/specs/2026-07-29-llamablock-design.md`](docs/superpowers/specs/2026-07-29-llamablock-design.md).
+[`docs/superpowers/specs/2026-07-29-llamavideoblock-design.md`](docs/superpowers/specs/2026-07-29-llamavideoblock-design.md).
 
 ## Layout
 
@@ -73,8 +73,8 @@ and generates its own test media, so the suite cannot break because YouTube chan
 
 Chrome's *own* autoplay policy is disabled in the test browser
 (`--autoplay-policy=no-user-gesture-required`). Without that, every "media did not play"
-assertion would pass whether or not LlamaBlock did anything. `tests/control.spec.js` is the
-control group: it proves the same fixtures do autoplay when LlamaBlock stands down.
+assertion would pass whether or not LlamaVideoBlock did anything. `tests/control.spec.js` is the
+control group: it proves the same fixtures do autoplay when LlamaVideoBlock stands down.
 
 ## Before Chrome Web Store submission
 

@@ -1,11 +1,11 @@
-# LlamaBlock — Chrome Extension Spec
+# LlamaVideoBlock — Chrome Extension Spec
 **Autoplay Blocker for Video and Audio | LlamaHub / Axys Software LLC**
 
 ---
 
 ## 1. Overview
 
-LlamaBlock is a Chrome extension that blocks autoplay of video and audio across all websites by default, with a user-managed whitelist for sites where autoplay is permitted. It is designed to be simple, effective, and site-agnostic — unlike existing solutions that only target YouTube or specific platforms.
+LlamaVideoBlock is a Chrome extension that blocks autoplay of video and audio across all websites by default, with a user-managed whitelist for sites where autoplay is permitted. It is designed to be simple, effective, and site-agnostic — unlike existing solutions that only target YouTube or specific platforms.
 
 Target release: Chrome Web Store (public)
 
@@ -54,12 +54,12 @@ Target release: Chrome Web Store (public)
 ## 5. UI
 
 ### Toolbar Popup
-Clicking the LlamaBlock icon in the Chrome toolbar opens a small popup with:
+Clicking the LlamaVideoBlock icon in the Chrome toolbar opens a small popup with:
 
 - **On/Off toggle** — master switch. When OFF, extension is fully disabled and autoplay works normally everywhere. Toggle state persists.
 - **Current site status** — shows whether the current domain is whitelisted or blocked, with a one-click button to toggle whitelist status for the current site ("Whitelist this site" / "Remove from whitelist")
 - **"Manage Whitelist" link** — opens the Options page (see below)
-- LlamaBlock logo/name in the header
+- LlamaVideoBlock logo/name in the header
 
 ### Options Page
 Full whitelist management:
@@ -69,7 +69,7 @@ Full whitelist management:
 - Simple, clean layout — no complexity needed
 
 ### Toolbar Icon States
-- **Normal (blocking active):** full color LlamaBlock icon
+- **Normal (blocking active):** full color LlamaVideoBlock icon
 - **Disabled (master toggle off):** grayscale icon
 - **Current site whitelisted:** icon with a small green checkmark badge
 
@@ -108,7 +108,7 @@ Before injecting the content script, background service worker checks the curren
 ## 7. File Structure
 
 ```
-llamablock/
+llamavideoblock/
 ├── manifest.json
 ├── background.js          (service worker — whitelist check, message handling)
 ├── content.js             (injected into pages — autoplay blocking logic)
@@ -131,7 +131,7 @@ llamablock/
 
 ## 8. Chrome Web Store Release
 
-- Extension name: **LlamaBlock**
+- Extension name: **LlamaVideoBlock**
 - Short description: "Blocks video and audio autoplay on all sites. Simple on/off toggle with per-site whitelist."
 - Category: Productivity
 - Privacy policy required (can be a simple page on llamahub.net)

@@ -13,7 +13,7 @@ import { test, expect } from './helpers.js';
  * @returns {Promise<string | null>}
  */
 function normalize(extension, input) {
-  return extension.worker.evaluate((value) => LlamaBlockDomain.normalize(value), input);
+  return extension.worker.evaluate((value) => LlamaVideoBlockDomain.normalize(value), input);
 }
 
 /**
@@ -22,7 +22,7 @@ function normalize(extension, input) {
  * @returns {Promise<string | null>}
  */
 function fromUrl(extension, url) {
-  return extension.worker.evaluate((value) => LlamaBlockDomain.fromUrl(value), url);
+  return extension.worker.evaluate((value) => LlamaVideoBlockDomain.fromUrl(value), url);
 }
 
 /**
@@ -33,7 +33,7 @@ function fromUrl(extension, url) {
  */
 function isWhitelisted(extension, whitelist, hostname) {
   return extension.worker.evaluate(
-    ([list, host]) => LlamaBlockDomain.isWhitelisted(list, host),
+    ([list, host]) => LlamaVideoBlockDomain.isWhitelisted(list, host),
     /** @type {[string[], string]} */ ([whitelist, hostname]),
   );
 }

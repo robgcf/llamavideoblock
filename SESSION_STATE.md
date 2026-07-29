@@ -1,7 +1,7 @@
-# LlamaBlock — Session State
+# LlamaVideoBlock — Session State
 
-**Project:** LlamaBlock (Chrome extension, autoplay blocker)
-**Path:** `~/code/LlamaBlock`
+**Project:** LlamaVideoBlock (Chrome extension, autoplay blocker)
+**Path:** `~/code/LlamaVideoBlock`
 **Last updated:** 2026-07-29
 **Model this session:** Opus 5
 
@@ -9,7 +9,7 @@
 
 ## Last completed
 
-Full v1 build from `LLAMABLOCK_SPEC.md`, in one session. Repository initialised from
+Full v1 build from `LLAMAVIDEOBLOCK_SPEC.md`, in one session. Repository initialised from
 empty (spec + CLAUDE.md were the only files).
 
 Everything in the spec is implemented:
@@ -100,6 +100,25 @@ audio-only source still exercises the whole `HTMLMediaElement` path).
 
 ---
 
+## Renamed 2026-07-29: LlamaBlock → LlamaVideoBlock
+
+Rob renamed the product after the initial build. The rename went all the way through, not
+just user-facing text: `manifest.json` name and `default_title`, popup and options headers
+and `<title>`s, the options colophon, the `[LlamaVideoBlock]` console prefixes, the shared
+globals (`LlamaVideoBlockDomain`, `LlamaVideoBlockStore`), the MAIN↔ISOLATED message
+channels (`llamavideoblock:verdict` / `:count`), the npm package name, the Web Store zip
+name, test helpers, and every comment and doc.
+
+`LLAMABLOCK_SPEC.md` and the design doc were `git mv`'d to match, so their history is
+intact and the links from README and the content scripts still resolve.
+
+Nothing outside the extension depends on the old strings — the channel names are internal
+to a single document and the storage keys (`whitelist`, `enabled`, `blockCounts`) were
+never namespaced, so no migration was needed and existing unpacked installs keep their
+settings.
+
+---
+
 ## Unresolved questions
 
 - **Icon art** — commissioned 3D cement block with platform logos is still outstanding
@@ -124,7 +143,7 @@ audio-only source still exercises the whole `HTMLMediaElement` path).
 
 ## Build state
 
-- **Last commit:** `8b1cb65` — Build LlamaBlock v1: autoplay blocker for video and audio
+- **Last commit:** `8b1cb65` — Build LlamaVideoBlock v1: autoplay blocker for video and audio
 - **Typecheck:** PASS — 0 errors, 0 warnings
 - **Tests:** 33 passing, 0 failing
 - **Extension console:** clean — no errors or warnings from the service worker, content
@@ -132,6 +151,7 @@ audio-only source still exercises the whole `HTMLMediaElement` path).
 - **Pushed:** YES — `origin` = `https://github.com/robgcf/llamavideoblock.git`, `main`
   tracking `origin/main`
 
-  Note the repo name (`llamavideoblock`) differs from the product name (`LlamaBlock`).
-  Harmless, but do not rename anything in the extension to match it — the Chrome Web Store
-  listing name comes from `manifest.json`.
+  ⚠️ **The working directory is still `~/code/LlamaBlock`** — it was not renamed with the
+  product. Repo name and product name both read `llamavideoblock` / `LlamaVideoBlock`; only
+  the local folder is out of step. Rename it if it bothers you, but nothing depends on the
+  folder name and renaming would invalidate paths in open editors and CC memory.

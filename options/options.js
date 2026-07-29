@@ -1,5 +1,5 @@
 /**
- * LlamaBlock options page — whitelist management.
+ * LlamaVideoBlock options page — whitelist management.
  *
  * Renders straight from `chrome.storage.sync` and re-renders on `storage.onChanged`, so
  * the list stays correct when the popup adds a site, when another device syncs, or when
@@ -18,7 +18,7 @@
   function requireElement(id, type) {
     const element = document.getElementById(id);
     if (!(element instanceof type)) {
-      throw new Error(`[LlamaBlock] Options element #${id} is missing or the wrong type`);
+      throw new Error(`[LlamaVideoBlock] Options element #${id} is missing or the wrong type`);
     }
     return /** @type {InstanceType<T>} */ (element);
   }
@@ -104,7 +104,7 @@
    * @returns {Promise<void>}
    */
   async function load() {
-    whitelist = await LlamaBlockStore.getWhitelist();
+    whitelist = await LlamaVideoBlockStore.getWhitelist();
     render();
   }
 
@@ -114,11 +114,11 @@
    */
   async function removeDomain(domain) {
     try {
-      whitelist = await LlamaBlockStore.removeDomain(domain);
+      whitelist = await LlamaVideoBlockStore.removeDomain(domain);
       render();
       announce(`${domain} removed`);
     } catch (error) {
-      console.error('[LlamaBlock] Failed to remove a whitelist entry:', error);
+      console.error('[LlamaVideoBlock] Failed to remove a whitelist entry:', error);
       showError('Could not save that change. Try again.');
     }
   }
@@ -135,15 +135,15 @@
     event.preventDefault();
 
     const raw = ui.input.value;
-    const domain = LlamaBlockDomain.normalize(raw);
+    const domain = LlamaVideoBlockDomain.normalize(raw);
 
     if (domain === null) {
-      showError(`"${raw.trim()}" is not a domain LlamaBlock can use.`);
+      showError(`"${raw.trim()}" is not a domain LlamaVideoBlock can use.`);
       ui.input.focus();
       return;
     }
 
-    const covering = whitelist.find((entry) => LlamaBlockDomain.covers(entry, domain));
+    const covering = whitelist.find((entry) => LlamaVideoBlockDomain.covers(entry, domain));
     if (covering !== undefined) {
       showError(
         covering === domain
@@ -156,13 +156,13 @@
 
     void (async () => {
       try {
-        whitelist = await LlamaBlockStore.addDomain(domain);
+        whitelist = await LlamaVideoBlockStore.addDomain(domain);
         ui.input.value = '';
         showError(null);
         render();
         announce(`${domain} added`);
       } catch (error) {
-        console.error('[LlamaBlock] Failed to add a whitelist entry:', error);
+        console.error('[LlamaVideoBlock] Failed to add a whitelist entry:', error);
         showError('Could not save that change. Try again.');
       }
     })();
@@ -184,12 +184,12 @@
   ui.clearConfirm.addEventListener('click', () => {
     void (async () => {
       try {
-        await LlamaBlockStore.clearWhitelist();
+        await LlamaVideoBlockStore.clearWhitelist();
         whitelist = [];
         render();
         announce('Whitelist cleared');
       } catch (error) {
-        console.error('[LlamaBlock] Failed to clear the whitelist:', error);
+        console.error('[LlamaVideoBlock] Failed to clear the whitelist:', error);
         showError('Could not clear the whitelist. Try again.');
       }
     })();
@@ -197,7 +197,7 @@
 
   // Keeps this page in step with the popup, other open copies, and sync from other devices.
   chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName !== 'sync' || !(LlamaBlockStore.WHITELIST_KEY in changes)) return;
+    if (areaName !== 'sync' || !(LlamaVideoBlockStore.WHITELIST_KEY in changes)) return;
     void load();
   });
 

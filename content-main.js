@@ -1,5 +1,5 @@
 /**
- * LlamaBlock — MAIN-world autoplay blocker.
+ * LlamaVideoBlock — MAIN-world autoplay blocker.
  *
  * Runs at `document_start` in the page's own JavaScript world, which means it executes
  * before any page script. That ordering is the whole point: overriding
@@ -20,14 +20,14 @@
  *   2. `autoplay` attr stripping — declarative autoplay, including SPA-injected elements
  *   3. capture-phase `play` net  — anything the first two miss
  *
- * @see docs/superpowers/specs/2026-07-29-llamablock-design.md
+ * @see docs/superpowers/specs/2026-07-29-llamavideoblock-design.md
  */
 
 (() => {
   'use strict';
 
-  const VERDICT_CHANNEL = 'llamablock:verdict';
-  const COUNT_CHANNEL = 'llamablock:count';
+  const VERDICT_CHANNEL = 'llamavideoblock:verdict';
+  const COUNT_CHANNEL = 'llamavideoblock:count';
 
   /** Give up waiting for a verdict and stay blocked. Storage reads take ~1ms in practice. */
   const VERDICT_TIMEOUT_MS = 5000;
@@ -140,7 +140,7 @@
   // ---------------------------------------------------------------------------
 
   /**
-   * Snapshot an element's pre-LlamaBlock state. No-op once the verdict has settled —
+   * Snapshot an element's pre-LlamaVideoBlock state. No-op once the verdict has settled —
    * at that point we either block for good or have already restored everything.
    *
    * @param {HTMLMediaElement} element

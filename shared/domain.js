@@ -21,7 +21,7 @@ const SCHEME_RE = /^[a-z][a-z0-9+.-]*:\/\//i;
  */
 const HOSTNAME_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/;
 
-const LlamaBlockDomain = {
+const LlamaVideoBlockDomain = {
   /**
    * Strip a leading `www.` label. Everything else is left alone — we deliberately do not
    * reduce to a registrable domain, because that needs the Public Suffix List and naive

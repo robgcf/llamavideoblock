@@ -1,5 +1,5 @@
 {
-  "name": "llamablock",
+  "name": "llamavideoblock",
   "version": "1.0.0",
   "description": "Chrome extension that blocks video and audio autoplay on all sites, with a per-site whitelist.",
   "private": true,

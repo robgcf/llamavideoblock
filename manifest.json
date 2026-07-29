@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "LlamaBlock",
+  "name": "LlamaVideoBlock",
   "version": "1.0.0",
   "description": "Blocks video and audio autoplay on all sites. Simple on/off toggle with per-site whitelist.",
   "author": "Axys Software LLC",
@@ -34,7 +34,7 @@
 
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "LlamaBlock",
+    "default_title": "LlamaVideoBlock",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",

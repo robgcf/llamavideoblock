@@ -1,5 +1,5 @@
 /**
- * LlamaBlock — background service worker.
+ * LlamaVideoBlock — background service worker.
  *
  * Deliberately not on the blocking path. Content scripts are declared in the manifest and
  * read storage themselves, so autoplay blocking works whether or not this worker is
@@ -11,7 +11,7 @@
  * A classic worker rather than a module, so `importScripts` can pull in the same shared
  * scripts the content scripts and pages use.
  *
- * @see docs/superpowers/specs/2026-07-29-llamablock-design.md
+ * @see docs/superpowers/specs/2026-07-29-llamavideoblock-design.md
  */
 
 importScripts('shared/domain.js', 'shared/store.js');
@@ -45,10 +45,10 @@ const BADGE_COLOUR = '#22C55E';
  */
 async function refreshIcon() {
   try {
-    const enabled = await LlamaBlockStore.isEnabled();
+    const enabled = await LlamaVideoBlockStore.isEnabled();
     await chrome.action.setIcon({ path: enabled ? COLOUR_ICONS : GRAY_ICONS });
   } catch (error) {
-    console.error('[LlamaBlock] Failed to refresh toolbar icon:', error);
+    console.error('[LlamaVideoBlock] Failed to refresh toolbar icon:', error);
   }
 }
 
@@ -62,9 +62,9 @@ async function refreshIcon() {
  */
 async function refreshBadge(tabId, url) {
   try {
-    const { enabled, whitelist } = await LlamaBlockStore.getSettings();
-    const hostname = LlamaBlockDomain.fromUrl(url);
-    const whitelisted = enabled && LlamaBlockDomain.isWhitelisted(whitelist, hostname);
+    const { enabled, whitelist } = await LlamaVideoBlockStore.getSettings();
+    const hostname = LlamaVideoBlockDomain.fromUrl(url);
+    const whitelisted = enabled && LlamaVideoBlockDomain.isWhitelisted(whitelist, hostname);
 
     await chrome.action.setBadgeText({ tabId, text: whitelisted ? BADGE_WHITELISTED : '' });
     if (whitelisted) {
@@ -73,7 +73,7 @@ async function refreshBadge(tabId, url) {
   } catch (error) {
     // Routinely throws when a tab closes mid-refresh. Not worth surfacing.
     if (!isMissingTabError(error)) {
-      console.error('[LlamaBlock] Failed to refresh badge:', error);
+      console.error('[LlamaVideoBlock] Failed to refresh badge:', error);
     }
   }
 }
@@ -96,7 +96,7 @@ async function refreshAllTabs() {
       tabs.map((tab) => (tab.id === undefined ? undefined : refreshBadge(tab.id, tab.url))),
     );
   } catch (error) {
-    console.error('[LlamaBlock] Failed to refresh tabs:', error);
+    console.error('[LlamaVideoBlock] Failed to refresh tabs:', error);
   }
 }
 
@@ -128,7 +128,7 @@ let countWrites = Promise.resolve();
 function queueCountWrite(write) {
   countWrites = countWrites
     .then(write)
-    .catch((error) => console.error('[LlamaBlock] Failed to record blocked count:', error));
+    .catch((error) => console.error('[LlamaVideoBlock] Failed to record blocked count:', error));
 }
 
 // ---------------------------------------------------------------------------
@@ -143,7 +143,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
   if (tabId === undefined || !Number.isFinite(count)) return false;
 
   const frameId = sender.frameId ?? 0;
-  queueCountWrite(() => LlamaBlockStore.setFrameCount(tabId, frameId, count));
+  queueCountWrite(() => LlamaVideoBlockStore.setFrameCount(tabId, frameId, count));
   return false;
 });
 
@@ -154,7 +154,7 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
       await refreshBadge(tabId, tab.url);
     } catch (error) {
       if (!isMissingTabError(error)) {
-        console.error('[LlamaBlock] Failed to handle tab activation:', error);
+        console.error('[LlamaVideoBlock] Failed to handle tab activation:', error);
       }
     }
   })();
@@ -163,7 +163,7 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // A fresh document means the previous page's blocked count is stale.
   if (changeInfo.status === 'loading') {
-    queueCountWrite(() => LlamaBlockStore.clearTabCount(tabId));
+    queueCountWrite(() => LlamaVideoBlockStore.clearTabCount(tabId));
   }
   if (changeInfo.status || changeInfo.url) {
     void refreshBadge(tabId, tab.url);
@@ -171,13 +171,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
-  queueCountWrite(() => LlamaBlockStore.clearTabCount(tabId));
+  queueCountWrite(() => LlamaVideoBlockStore.clearTabCount(tabId));
 });
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   const affectsBlocking =
-    (areaName === 'sync' && LlamaBlockStore.WHITELIST_KEY in changes) ||
-    (areaName === 'local' && LlamaBlockStore.ENABLED_KEY in changes);
+    (areaName === 'sync' && LlamaVideoBlockStore.WHITELIST_KEY in changes) ||
+    (areaName === 'local' && LlamaVideoBlockStore.ENABLED_KEY in changes);
 
   if (affectsBlocking) void refreshEverything();
 });

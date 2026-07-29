@@ -1,5 +1,5 @@
 /**
- * Storage access for LlamaBlock. Classic script, loaded the same four ways as
+ * Storage access for LlamaVideoBlock. Classic script, loaded the same four ways as
  * `shared/domain.js`.
  *
  * Split across three stores on purpose:
@@ -13,7 +13,7 @@
  * blocking rather than silently letting autoplay through.
  */
 
-const LlamaBlockStore = {
+const LlamaVideoBlockStore = {
   WHITELIST_KEY: 'whitelist',
   ENABLED_KEY: 'enabled',
   COUNTS_KEY: 'blockCounts',
@@ -28,7 +28,7 @@ const LlamaBlockStore = {
       if (!Array.isArray(list)) return [];
       return list.filter((entry) => typeof entry === 'string' && entry.length > 0);
     } catch (error) {
-      console.error('[LlamaBlock] Failed to read whitelist:', error);
+      console.error('[LlamaVideoBlock] Failed to read whitelist:', error);
       return [];
     }
   },
@@ -53,7 +53,7 @@ const LlamaBlockStore = {
       const enabled = stored[this.ENABLED_KEY];
       return typeof enabled === 'boolean' ? enabled : true;
     } catch (error) {
-      console.error('[LlamaBlock] Failed to read master toggle:', error);
+      console.error('[LlamaVideoBlock] Failed to read master toggle:', error);
       return true;
     }
   },
@@ -118,7 +118,7 @@ const LlamaBlockStore = {
       if (!counts || typeof counts !== 'object') return {};
       return /** @type {Record<string, Record<string, number>>} */ (counts);
     } catch (error) {
-      console.error('[LlamaBlock] Failed to read blocked counts:', error);
+      console.error('[LlamaVideoBlock] Failed to read blocked counts:', error);
       return {};
     }
   },
