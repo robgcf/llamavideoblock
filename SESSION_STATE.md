@@ -124,9 +124,14 @@ audio-only source still exercises the whole `HTMLMediaElement` path).
 
 ## Build state
 
-- **Last commit:** initial commit (see `git log`)
+- **Last commit:** `8b1cb65` — Build LlamaBlock v1: autoplay blocker for video and audio
 - **Typecheck:** PASS — 0 errors, 0 warnings
 - **Tests:** 33 passing, 0 failing
 - **Extension console:** clean — no errors or warnings from the service worker, content
   scripts, popup, or options page
-- **Pushed:** NO — no remote configured yet
+- **Pushed:** YES — `origin` = `https://github.com/robgcf/llamavideoblock.git`, `main`
+  tracking `origin/main`
+
+  Note the repo name (`llamavideoblock`) differs from the product name (`LlamaBlock`).
+  Harmless, but do not rename anything in the extension to match it — the Chrome Web Store
+  listing name comes from `manifest.json`.
