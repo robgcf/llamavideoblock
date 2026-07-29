@@ -362,6 +362,28 @@ body {
 
 /* --------------------------------------------------------------- colophon */
 
+.colophon__sep {
+  margin: 0 6px;
+  opacity: 0.5;
+}
+
+.colophon__link {
+  color: var(--text-faint);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line-bright);
+  transition: color 150ms var(--ease), border-color 150ms var(--ease);
+}
+
+.colophon__link:hover {
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+.colophon__link:focus-visible {
+  outline: 2px solid var(--amber-bright);
+  outline-offset: 2px;
+}
+
 .colophon {
   margin: 28px 0 0;
   text-align: center;

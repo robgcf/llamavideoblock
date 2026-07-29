@@ -79,7 +79,14 @@ control group: it proves the same fixtures do autoplay when LlamaVideoBlock stan
 ## Before Chrome Web Store submission
 
 - [ ] Replace the placeholder icons with the commissioned 3D cement block art
-- [ ] Publish the privacy policy page on llamahub.net and link it in the listing
+- [ ] **Publish the privacy policy.** The URL is settled and already linked from the options
+      page: `https://llamahub.net/legal/llamavideoblock-privacy`. As of 2026-07-29 that route
+      **404s** — it renders LlamaHub's not-found component, byte-identical to a nonexistent
+      URL. Note the trap: the server answers **HTTP 200** and the 404 is drawn client-side,
+      so a scripted link check passes while a human reviewer sees "Page not found". Verify by
+      opening it in a browser, not with `curl`.
+- [ ] Paste that URL into the Chrome Web Store dashboard under **Privacy practices → Privacy
+      policy URL**. Google links out to it; nothing is copied into the extension.
 - [ ] Bump `version` in `manifest.json` and `package.json`
 - [ ] `npm run check`, then `npm run package`
 

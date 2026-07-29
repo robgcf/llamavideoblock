@@ -179,6 +179,29 @@ come out with it. Console cleanliness on a top-10 site probably wins, but it is 
 
 ---
 
+## BLOCKER for release: privacy policy page 404s
+
+URL is settled and wired into the options page footer:
+`https://llamahub.net/legal/llamavideoblock-privacy`
+
+**As of 2026-07-29 that route does not exist.** It renders LlamaHub's not-found component,
+byte-for-byte identical to a URL invented for the test.
+
+⚠️ **The failure is disguised.** The server answers **HTTP 200** with a 475-byte SPA shell,
+and the "404 Page not found" is drawn client-side by React. So `curl` and any scripted link
+check report success, while a human Web Store reviewer opens it and sees a 404. **Verify by
+rendering the page in a browser, never by status code.**
+
+Required by review because of the `<all_urls>` host permission. The URL also has to be
+pasted into the Chrome Web Store dashboard under Privacy practices — Google links out to it;
+nothing is copied into the extension bundle.
+
+Once the route exists, note the policy text will still be client-side rendered, so the raw
+HTTP response contains none of it. Fine for human review; worth knowing if anything ever
+crawls it.
+
+---
+
 ## Unresolved questions
 
 - **Icon art** — commissioned 3D cement block with platform logos is still outstanding

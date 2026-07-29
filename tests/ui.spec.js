@@ -260,6 +260,20 @@ test('popup hides the decision log when diagnostics are off', async ({ extension
   await expect(popup.locator('#diag')).toBeHidden();
 });
 
+test('options page links to the privacy policy', async ({ extension }) => {
+  // Chrome Web Store review requires a privacy policy because of <all_urls>. The link is
+  // asserted here so a refactor cannot quietly drop it; whether the page is actually
+  // published is a release-checklist item, not something a test can know.
+  const page = await openOptions(extension);
+  const link = page.locator('.colophon__link');
+
+  await expect(link).toHaveAttribute(
+    'href',
+    'https://llamahub.net/legal/llamavideoblock-privacy',
+  );
+  await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+});
+
 test('options page follows whitelist changes made elsewhere', async ({ extension }) => {
   const page = await openOptions(extension);
   await expect(page.locator('#empty')).toBeVisible();
