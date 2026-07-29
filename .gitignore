@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.zip
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+.playwright-mcp/
+
+# OS noise
+.DS_Store

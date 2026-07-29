@@ -1,0 +1,23 @@
+{
+  "name": "llamablock",
+  "version": "1.0.0",
+  "description": "Chrome extension that blocks video and audio autoplay on all sites, with a per-site whitelist.",
+  "private": true,
+  "type": "module",
+  "author": "Axys Software LLC",
+  "license": "UNLICENSED",
+  "scripts": {
+    "icons": "node tools/generate-icons.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "check": "npm run typecheck && npm run test",
+    "package": "node tools/package-extension.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.0",
+    "@types/chrome": "^0.1.28",
+    "@types/node": "^26.1.2",
+    "typescript": "^5.9.3"
+  }
+}

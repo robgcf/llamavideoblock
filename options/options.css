@@ -1,0 +1,352 @@
+/*
+ * LlamaBlock options page.
+ *
+ * Same warm charcoal and amber as the popup (tokens in shared/theme.css), but given room
+ * to breathe: a narrow centred column, generous card padding, and domains set in mono so
+ * the list reads like a config file.
+ */
+
+body {
+  font-size: 14px;
+  background-image: radial-gradient(
+    120% 60% at 50% 0%,
+    rgba(237, 161, 60, 0.07),
+    transparent 70%
+  );
+  background-attachment: fixed;
+}
+
+.shell {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 56px 24px 72px;
+}
+
+/* --------------------------------------------------------------- masthead */
+
+.masthead {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.masthead__mark {
+  flex: none;
+  display: block;
+  border-radius: 10px;
+}
+
+.masthead__name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.masthead__tagline {
+  margin: 3px 0 0;
+  font-size: 13.5px;
+  color: var(--text-dim);
+}
+
+/* --------------------------------------------------------------- cards */
+
+.card {
+  padding: 20px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-raised);
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card__foot {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-bright);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+}
+
+/* --------------------------------------------------------------- add form */
+
+.add {
+  display: flex;
+  gap: 9px;
+  margin-top: 11px;
+}
+
+.add__input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line-bright);
+  border-radius: 8px;
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  transition: border-color 150ms var(--ease), box-shadow 150ms var(--ease);
+}
+
+.add__input::placeholder {
+  color: var(--text-faint);
+}
+
+.add__input:focus {
+  outline: none;
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px rgba(237, 161, 60, 0.16);
+}
+
+.add__input[aria-invalid="true"] {
+  border-color: var(--red);
+}
+
+.add__error {
+  margin: 9px 0 0;
+  font-size: 12.5px;
+  color: var(--red);
+}
+
+.add__hint {
+  margin: 9px 0 0;
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+
+.add__hint code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* --------------------------------------------------------------- buttons */
+
+.btn {
+  flex: none;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms var(--ease), border-color 150ms var(--ease),
+    color 150ms var(--ease), transform 150ms var(--ease);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--amber-bright);
+  outline-offset: 2px;
+}
+
+.btn--primary {
+  background: var(--amber);
+  color: #20180d;
+}
+
+.btn--primary:hover {
+  background: var(--amber-bright);
+}
+
+.btn--quiet {
+  padding: 8px 12px;
+  background: none;
+  border-color: var(--line-bright);
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.btn--quiet:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+
+.btn--danger {
+  padding: 8px 12px;
+  background: rgba(248, 113, 113, 0.14);
+  border-color: rgba(248, 113, 113, 0.45);
+  color: var(--red);
+}
+
+.btn--danger:hover {
+  background: rgba(248, 113, 113, 0.22);
+}
+
+/* --------------------------------------------------------------- list */
+
+.list {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list:empty {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px 10px 12px;
+  border-bottom: 1px solid var(--line);
+  animation: slot-in 260ms var(--ease) both;
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.row__domain {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  word-break: break-all;
+}
+
+.row__remove {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: none;
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 150ms var(--ease), background 150ms var(--ease),
+    border-color 150ms var(--ease);
+}
+
+.row__remove:hover {
+  color: var(--red);
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+.row__remove:focus-visible {
+  outline: 2px solid var(--amber-bright);
+  outline-offset: 1px;
+}
+
+.empty {
+  margin: 14px 0 0;
+  padding: 18px 12px;
+  border: 1px dashed var(--line-bright);
+  border-radius: 9px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+/* --------------------------------------------------------------- confirm */
+
+/* Replaces the "Clear all" button in place, so the destructive path needs a second,
+   deliberate click. Both states are the same height, so nothing shifts. */
+.confirm {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+}
+
+.confirm__text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* --------------------------------------------------------------- colophon */
+
+.colophon {
+  margin: 28px 0 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* --------------------------------------------------------------- motion */
+
+.masthead,
+.card,
+.colophon {
+  animation: rise 380ms var(--ease) both;
+}
+
+.card:nth-of-type(1) {
+  animation-delay: 50ms;
+}
+.card:nth-of-type(2) {
+  animation-delay: 100ms;
+}
+.colophon {
+  animation-delay: 150ms;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes slot-in {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .shell {
+    padding: 32px 16px 48px;
+  }
+
+  .add {
+    flex-wrap: wrap;
+  }
+
+  .add__input {
+    flex-basis: 100%;
+  }
+}

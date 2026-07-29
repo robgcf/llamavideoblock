@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>LlamaBlock</title>
+    <link rel="stylesheet" href="../shared/theme.css" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="panel" id="panel">
+      <header class="header">
+        <img class="header__mark" src="../icons/icon32.png" alt="" width="20" height="20" />
+        <h1 class="header__name">LlamaBlock</h1>
+
+        <label class="switch" for="master-toggle">
+          <span class="switch__label" id="master-label">Blocking</span>
+          <input class="switch__input" type="checkbox" id="master-toggle" />
+          <span class="switch__track" aria-hidden="true"><span class="switch__knob"></span></span>
+        </label>
+      </header>
+
+      <section class="site" id="site">
+        <p class="micro">Current site</p>
+
+        <div class="site__row">
+          <span class="site__host" id="site-host">—</span>
+          <span class="pill" id="site-pill" data-state="unknown">—</span>
+        </div>
+
+        <button class="action" id="whitelist-toggle" type="button" hidden>
+          Whitelist this site
+        </button>
+
+        <p class="site__note" id="site-note" hidden></p>
+      </section>
+
+      <section class="tally" id="tally" hidden>
+        <span class="tally__value" id="tally-value">0</span>
+        <span class="tally__label" id="tally-label">autoplays blocked here</span>
+      </section>
+
+      <footer class="footer">
+        <button class="link" id="manage" type="button">
+          Manage whitelist
+          <span class="link__arrow" aria-hidden="true">→</span>
+        </button>
+      </footer>
+
+      <p class="live" id="live" role="status" aria-live="polite"></p>
+    </main>
+
+    <script src="../shared/domain.js"></script>
+    <script src="../shared/store.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

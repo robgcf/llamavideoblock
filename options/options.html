@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LlamaBlock — Whitelist</title>
+    <link rel="stylesheet" href="../shared/theme.css" />
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="masthead">
+        <img class="masthead__mark" src="../icons/icon128.png" alt="" width="40" height="40" />
+        <div>
+          <h1 class="masthead__name">LlamaBlock</h1>
+          <p class="masthead__tagline">
+            Autoplay is blocked everywhere except the sites listed below.
+          </p>
+        </div>
+      </header>
+
+      <section class="card">
+        <p class="micro">Add a site</p>
+
+        <form class="add" id="add-form" novalidate>
+          <input
+            class="add__input"
+            id="add-input"
+            type="text"
+            placeholder="netflix.com"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            aria-label="Domain to whitelist"
+            aria-describedby="add-error"
+          />
+          <button class="btn btn--primary" type="submit">Add</button>
+        </form>
+
+        <p class="add__error" id="add-error" role="alert" hidden></p>
+        <p class="add__hint">
+          A domain covers its subdomains too — <code>netflix.com</code> also allows
+          <code>www.netflix.com</code>.
+        </p>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <p class="micro" id="list-heading">Whitelisted sites</p>
+          <span class="tag" id="list-count">0</span>
+        </div>
+
+        <ul class="list" id="list" aria-labelledby="list-heading"></ul>
+
+        <p class="empty" id="empty" hidden>
+          Nothing whitelisted yet. Autoplay is blocked on every site.
+        </p>
+
+        <div class="card__foot" id="clear-row" hidden>
+          <button class="btn btn--quiet" id="clear" type="button">Clear all</button>
+
+          <div class="confirm" id="confirm" hidden>
+            <span class="confirm__text">Remove every whitelisted site?</span>
+            <button class="btn btn--danger" id="clear-confirm" type="button">
+              Yes, clear all
+            </button>
+            <button class="btn btn--quiet" id="clear-cancel" type="button">Cancel</button>
+          </div>
+        </div>
+      </section>
+
+      <p class="colophon">LlamaBlock — Axys Software LLC</p>
+      <p class="live" id="live" role="status" aria-live="polite"></p>
+    </div>
+
+    <script src="../shared/domain.js"></script>
+    <script src="../shared/store.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>
