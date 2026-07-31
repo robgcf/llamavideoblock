@@ -1,5 +1,5 @@
 /**
- * Ambient declarations for LlamaVideoBlock.
+ * Ambient declarations for LlamaAutoPlayBlock.
  *
  * The background service worker is a classic (non-module) worker so it can pull in the
  * shared scripts with `importScripts`. `importScripts` lives in `lib.webworker.d.ts`,

@@ -1,4 +1,4 @@
-# LlamaVideoBlock
+# LlamaAutoPlayBlock
 
 Chrome extension that blocks video and audio autoplay on every site, with a per-site
 whitelist. Site-agnostic — no per-platform special cases.
@@ -25,7 +25,7 @@ The repository *is* the extension. There is nothing to compile.
 | `npm run test:headed` | Same, with a visible browser. |
 | `npm run check` | Typecheck then tests. The gate before any commit. |
 | `npm run icons` | Regenerate the placeholder icons. |
-| `npm run package` | Build `dist/llamavideoblock-<version>.zip` for the Chrome Web Store. |
+| `npm run package` | Build `dist/llamaautoplayblock-<version>.zip` for the Chrome Web Store. |
 
 ## How the blocking works
 
@@ -47,7 +47,7 @@ via a `MutationObserver`, and a capture-phase `play` listener as a safety net. B
 autoplay policy throws — so sites fall back to a play button instead of breaking.
 
 Full reasoning, including what was deliberately not done:
-[`docs/superpowers/specs/2026-07-29-llamavideoblock-design.md`](docs/superpowers/specs/2026-07-29-llamavideoblock-design.md).
+[`docs/superpowers/specs/2026-07-29-llamaautoplayblock-design.md`](docs/superpowers/specs/2026-07-29-llamaautoplayblock-design.md).
 
 ## Layout
 
@@ -73,14 +73,14 @@ and generates its own test media, so the suite cannot break because YouTube chan
 
 Chrome's *own* autoplay policy is disabled in the test browser
 (`--autoplay-policy=no-user-gesture-required`). Without that, every "media did not play"
-assertion would pass whether or not LlamaVideoBlock did anything. `tests/control.spec.js` is the
-control group: it proves the same fixtures do autoplay when LlamaVideoBlock stands down.
+assertion would pass whether or not LlamaAutoPlayBlock did anything. `tests/control.spec.js` is the
+control group: it proves the same fixtures do autoplay when LlamaAutoPlayBlock stands down.
 
 ## Before Chrome Web Store submission
 
 - [ ] Replace the placeholder icons with the commissioned 3D cement block art
 - [ ] **Publish the privacy policy.** The URL is settled and already linked from the options
-      page: `https://llamahub.net/legal/llamavideoblock-privacy`. As of 2026-07-29 that route
+      page: `https://llamahub.net/legal/llamaautoplayblock-privacy`. As of 2026-08-03 that route
       **404s** — it renders LlamaHub's not-found component, byte-identical to a nonexistent
       URL. Note the trap: the server answers **HTTP 200** and the 404 is drawn client-side,
       so a scripted link check passes while a human reviewer sees "Page not found". Verify by

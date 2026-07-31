@@ -1,15 +1,15 @@
-# LlamaVideoBlock — Session State
+# LlamaAutoPlayBlock — Session State
 
-**Project:** LlamaVideoBlock (Chrome extension, autoplay blocker)
-**Path:** `~/code/LlamaBlock` (folder keeps the pre-rename name — see Build state)
-**Last updated:** 2026-07-29
+**Project:** LlamaAutoPlayBlock (Chrome extension, autoplay blocker)
+**Path:** `~/code/LlamaAutoPlayBlock` (renamed 2026-08-03; remote is still `llamavideoblock`)
+**Last updated:** 2026-08-03
 **Model this session:** Opus 5
 
 ---
 
 ## Last completed
 
-Full v1 build from `LLAMAVIDEOBLOCK_SPEC.md`, in one session. Repository initialised from
+Full v1 build from `LLAMAAUTOPLAYBLOCK_SPEC.md`, in one session. Repository initialised from
 empty (spec + CLAUDE.md were the only files).
 
 Everything in the spec is implemented:
@@ -100,22 +100,34 @@ audio-only source still exercises the whole `HTMLMediaElement` path).
 
 ---
 
-## Renamed 2026-07-29: LlamaBlock → LlamaVideoBlock
+## Renamed TWICE — current name is LlamaAutoPlayBlock
 
-Rob renamed the product after the initial build. The rename went all the way through, not
-just user-facing text: `manifest.json` name and `default_title`, popup and options headers
-and `<title>`s, the options colophon, the `[LlamaVideoBlock]` console prefixes, the shared
-globals (`LlamaVideoBlockDomain`, `LlamaVideoBlockStore`), the MAIN↔ISOLATED message
-channels (`llamavideoblock:verdict` / `:count`), the npm package name, the Web Store zip
-name, test helpers, and every comment and doc.
+1. **LlamaBlock → LlamaVideoBlock** (2026-07-29, during the build)
+2. **LlamaVideoBlock → LlamaAutoPlayBlock** (2026-08-03) — "VideoBlock" read as though the
+   extension blocked videos, which is the opposite of what it does.
 
-`LLAMABLOCK_SPEC.md` and the design doc were `git mv`'d to match, so their history is
-intact and the links from README and the content scripts still resolve.
+Both renames went all the way through, not just user-facing text: `manifest.json` name and
+`default_title`, popup and options headers and `<title>`s, the options colophon, the
+`[LlamaAutoPlayBlock]` console prefixes, the shared globals (`LlamaAutoPlayBlockDomain`,
+`LlamaAutoPlayBlockStore`), the MAIN↔ISOLATED message channels
+(`llamaautoplayblock:verdict` / `:count` / `:debug`), the npm package name, the Web Store
+zip name, the privacy-policy URL slug, test helpers, and every comment and doc.
 
-Nothing outside the extension depends on the old strings — the channel names are internal
-to a single document and the storage keys (`whitelist`, `enabled`, `blockCounts`) were
-never namespaced, so no migration was needed and existing unpacked installs keep their
-settings.
+The spec and design doc were `git mv`'d each time, so history is intact and the links from
+README and the content scripts still resolve.
+
+No migration was ever needed: the channel names are internal to a single document, and the
+storage keys (`whitelist`, `enabled`, `blockCounts`, `debug`) were never namespaced.
+
+⚠️ **The GitHub remote is still `robgcf/llamavideoblock`** — it now matches neither the
+product nor the folder. Harmless (git does not care), but rename it on GitHub if the
+mismatch will bother anyone. The Chrome Web Store listing name comes from `manifest.json`,
+not from the repo.
+
+⚠️ **The working directory changed to `~/code/LlamaAutoPlayBlock`.** An unpacked
+extension's ID is derived from its path, so the ID changed — Rob needs a fresh **Load
+unpacked** from the new path, and the whitelist, master toggle and diagnostics flag start
+from defaults. That is expected, not a regression.
 
 ---
 
@@ -182,7 +194,7 @@ come out with it. Console cleanliness on a top-10 site probably wins, but it is 
 ## BLOCKER for release: privacy policy page 404s
 
 URL is settled and wired into the options page footer:
-`https://llamahub.net/legal/llamavideoblock-privacy`
+`https://llamahub.net/legal/llamaautoplayblock-privacy`
 
 **As of 2026-07-29 that route does not exist.** It renders LlamaHub's not-found component,
 byte-for-byte identical to a URL invented for the test.
@@ -231,10 +243,8 @@ crawls it.
 - **Tests:** 33 passing, 0 failing
 - **Extension console:** clean — no errors or warnings from the service worker, content
   scripts, popup, or options page
-- **Pushed:** YES — `origin` = `https://github.com/robgcf/llamavideoblock.git`, `main`
-  tracking `origin/main`
+- **Pushed:** YES — `origin` = `https://github.com/robgcf/llamavideoblock.git` (the repo
+  keeps the *previous* product name; not renamed on GitHub), `main` tracking `origin/main`
 
-  ⚠️ **The working directory is still `~/code/LlamaBlock`** — it was not renamed with the
-  product. Repo name and product name both read `llamavideoblock` / `LlamaVideoBlock`; only
-  the local folder is out of step. Rename it if it bothers you, but nothing depends on the
-  folder name and renaming would invalidate paths in open editors and CC memory.
+  ⚠️ The working directory `~/code/LlamaAutoPlayBlock` and the product name now agree; only
+  the GitHub repo slug is out of step. Nothing depends on it.

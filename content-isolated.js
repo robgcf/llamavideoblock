@@ -1,5 +1,5 @@
 /**
- * LlamaVideoBlock — ISOLATED-world bridge.
+ * LlamaAutoPlayBlock — ISOLATED-world bridge.
  *
  * `content-main.js` blocks first and asks later. This is the "later": read the whitelist
  * and master toggle, work out whether this frame should be blocking, and tell the MAIN
@@ -8,15 +8,15 @@
  *
  * Loaded after `shared/domain.js` and `shared/store.js`, which share this world's scope.
  *
- * @see docs/superpowers/specs/2026-07-29-llamavideoblock-design.md
+ * @see docs/superpowers/specs/2026-07-29-llamaautoplayblock-design.md
  */
 
 (() => {
   'use strict';
 
-  const VERDICT_CHANNEL = 'llamavideoblock:verdict';
-  const COUNT_CHANNEL = 'llamavideoblock:count';
-  const DEBUG_CHANNEL = 'llamavideoblock:debug';
+  const VERDICT_CHANNEL = 'llamaautoplayblock:verdict';
+  const COUNT_CHANNEL = 'llamaautoplayblock:count';
+  const DEBUG_CHANNEL = 'llamaautoplayblock:debug';
   /** The count is cosmetic and page-visible, so clamp rather than trust it. */
   const MAX_REPORTED_COUNT = 9999;
 
@@ -30,7 +30,7 @@
    * @returns {string | null}
    */
   function currentHostname() {
-    const own = LlamaVideoBlockDomain.fromUrl(location.href);
+    const own = LlamaAutoPlayBlockDomain.fromUrl(location.href);
     if (own) return own;
 
     const ancestors = location.ancestorOrigins;
@@ -38,7 +38,7 @@
 
     // Index 0 is the immediate parent, so this walks outward and takes the nearest match.
     for (let i = 0; i < ancestors.length; i++) {
-      const host = LlamaVideoBlockDomain.fromUrl(ancestors.item(i));
+      const host = LlamaAutoPlayBlockDomain.fromUrl(ancestors.item(i));
       if (host) return host;
     }
     return null;
@@ -71,14 +71,14 @@
    */
   async function resolveVerdict() {
     try {
-      const { enabled, whitelist, debug } = await LlamaVideoBlockStore.getSettings();
+      const { enabled, whitelist, debug } = await LlamaAutoPlayBlockStore.getSettings();
       const hostname = currentHostname();
-      const whitelisted = LlamaVideoBlockDomain.isWhitelisted(whitelist, hostname);
+      const whitelisted = LlamaAutoPlayBlockDomain.isWhitelisted(whitelist, hostname);
       const blocking = enabled && !whitelisted;
 
       if (debug) {
         console.log(
-          '%c[LlamaVideoBlock]',
+          '%c[LlamaAutoPlayBlock]',
           'color:#eda13c;font-weight:bold',
           `verdict for ${hostname ?? '(no host)'} — blocking=${blocking} ` +
             `(enabled=${enabled} whitelisted=${whitelisted}) ` +
@@ -88,7 +88,7 @@
 
       sendVerdict(blocking, debug);
     } catch (error) {
-      console.error('[LlamaVideoBlock] Could not resolve verdict, staying blocked:', error);
+      console.error('[LlamaAutoPlayBlock] Could not resolve verdict, staying blocked:', error);
       sendVerdict(true, false);
     }
   }
@@ -104,7 +104,7 @@
       // Rejects if the service worker is mid-restart; the next report supersedes it.
       chrome.runtime.sendMessage(message).catch(() => {});
     } catch (error) {
-      console.error('[LlamaVideoBlock] Could not report blocked count:', error);
+      console.error('[LlamaAutoPlayBlock] Could not report blocked count:', error);
     }
   }
 
@@ -117,7 +117,7 @@
     try {
       chrome.runtime.sendMessage({ type: 'debugLines', lines }).catch(() => {});
     } catch (error) {
-      console.error('[LlamaVideoBlock] Could not report diagnostics:', error);
+      console.error('[LlamaAutoPlayBlock] Could not report diagnostics:', error);
     }
   }
 

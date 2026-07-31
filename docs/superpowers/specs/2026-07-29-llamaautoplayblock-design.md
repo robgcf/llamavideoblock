@@ -1,10 +1,10 @@
-# LlamaVideoBlock — Implementation Design
+# LlamaAutoPlayBlock — Implementation Design
 
 **Date:** 2026-07-29
 **Status:** Approved by Rob (Head Llama), 2026-07-29
-**Source spec:** [`LLAMAVIDEOBLOCK_SPEC.md`](../../../LLAMAVIDEOBLOCK_SPEC.md)
+**Source spec:** [`LLAMAAUTOPLAYBLOCK_SPEC.md`](../../../LLAMAAUTOPLAYBLOCK_SPEC.md)
 
-This document records the design decisions taken *on top of* `LLAMAVIDEOBLOCK_SPEC.md`, and the
+This document records the design decisions taken *on top of* `LLAMAAUTOPLAYBLOCK_SPEC.md`, and the
 reasoning behind each. The spec remains the product definition; this is the technical design
 that implements it. Where the two disagree, this document wins and says why.
 
@@ -242,4 +242,4 @@ not a substitute for it.
 
 Everything in spec §9, unchanged. Additionally out of scope for v1: live whitelist application
 without a page reload, Public Suffix List domain reduction, and hardening the MAIN↔ISOLATED
-channel against a page that specifically targets LlamaVideoBlock.
+channel against a page that specifically targets LlamaAutoPlayBlock.

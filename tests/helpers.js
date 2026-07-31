@@ -1,11 +1,11 @@
 /**
- * Test harness for LlamaVideoBlock.
+ * Test harness for LlamaAutoPlayBlock.
  *
  * Loads the unpacked extension into a real Chrome. Two things matter here:
  *
  *   1. `--autoplay-policy=no-user-gesture-required` disables Chrome's *own* autoplay
  *      blocking. Without it every "media did not play" assertion would pass whether or
- *      not LlamaVideoBlock did anything.
+ *      not LlamaAutoPlayBlock did anything.
  *   2. Each test gets a throwaway profile directory, so whitelist and toggle state never
  *      leak between tests.
  */
@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 const EXTENSION_PATH = dirname(dirname(fileURLToPath(import.meta.url)));
 
 export const BASE_URL = 'http://127.0.0.1:8787';
-/** The fixture server's hostname, as LlamaVideoBlock would store it in the whitelist. */
+/** The fixture server's hostname, as LlamaAutoPlayBlock would store it in the whitelist. */
 export const FIXTURE_DOMAIN = '127.0.0.1';
 
 /**
@@ -29,12 +29,12 @@ export const FIXTURE_DOMAIN = '127.0.0.1';
  * @property {string} id extension id
  */
 
-/** @typedef {{ extension: Extension }} LlamaVideoBlockFixtures */
+/** @typedef {{ extension: Extension }} LlamaAutoPlayBlockFixtures */
 /** @typedef {import('@playwright/test').PlaywrightTestArgs & import('@playwright/test').PlaywrightTestOptions} BaseTestArgs */
 /** @typedef {import('@playwright/test').PlaywrightWorkerArgs & import('@playwright/test').PlaywrightWorkerOptions} BaseWorkerArgs */
 
 export const test = base.extend(
-  /** @type {import('@playwright/test').Fixtures<LlamaVideoBlockFixtures, {}, BaseTestArgs, BaseWorkerArgs>} */ ({
+  /** @type {import('@playwright/test').Fixtures<LlamaAutoPlayBlockFixtures, {}, BaseTestArgs, BaseWorkerArgs>} */ ({
     /**
      * A Chrome running the unpacked extension, with blocking at its installed defaults.
      * Each test gets a throwaway profile so whitelist and toggle state never leak between
@@ -43,7 +43,7 @@ export const test = base.extend(
     // Playwright reads this signature to work out fixture dependencies, so the empty
     // destructuring pattern is required — it cannot be a named parameter.
     extension: async ({}, use) => {
-      const profile = await mkdtemp(join(tmpdir(), 'llamavideoblock-'));
+      const profile = await mkdtemp(join(tmpdir(), 'llamaautoplayblock-'));
 
       const context = await chromium.launchPersistentContext(profile, {
         // Extensions need the full Chromium build, not the headless shell.

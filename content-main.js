@@ -1,5 +1,5 @@
 /**
- * LlamaVideoBlock — MAIN-world autoplay blocker.
+ * LlamaAutoPlayBlock — MAIN-world autoplay blocker.
  *
  * Runs at `document_start` in the page's own JavaScript world, which means it executes
  * before any page script. That ordering is the whole point: overriding
@@ -20,15 +20,15 @@
  *   2. `autoplay` attr stripping — declarative autoplay, including SPA-injected elements
  *   3. capture-phase `play` net  — anything the first two miss
  *
- * @see docs/superpowers/specs/2026-07-29-llamavideoblock-design.md
+ * @see docs/superpowers/specs/2026-07-29-llamaautoplayblock-design.md
  */
 
 (() => {
   'use strict';
 
-  const VERDICT_CHANNEL = 'llamavideoblock:verdict';
-  const COUNT_CHANNEL = 'llamavideoblock:count';
-  const DEBUG_CHANNEL = 'llamavideoblock:debug';
+  const VERDICT_CHANNEL = 'llamaautoplayblock:verdict';
+  const COUNT_CHANNEL = 'llamaautoplayblock:count';
+  const DEBUG_CHANNEL = 'llamaautoplayblock:debug';
 
   /** Give up waiting for a verdict and stay blocked. Storage reads take ~1ms in practice. */
   const VERDICT_TIMEOUT_MS = 5000;
@@ -82,7 +82,7 @@
       `${message}${detail ? ` — ${detail}` : ''}`;
 
     if (debug) {
-      console.log('%c[LlamaVideoBlock]', 'color:#eda13c;font-weight:bold', line);
+      console.log('%c[LlamaAutoPlayBlock]', 'color:#eda13c;font-weight:bold', line);
       queueForPopup(line);
       return;
     }
@@ -260,7 +260,7 @@
   // ---------------------------------------------------------------------------
 
   /**
-   * Snapshot an element's pre-LlamaVideoBlock state. No-op once the verdict has settled —
+   * Snapshot an element's pre-LlamaAutoPlayBlock state. No-op once the verdict has settled —
    * at that point we either block for good or have already restored everything.
    *
    * @param {HTMLMediaElement} element
@@ -480,7 +480,7 @@
     // Flush what happened before we knew logging was wanted, then carry on live.
     if (debug && debugBuffer.length > 0) {
       console.groupCollapsed(
-        `%c[LlamaVideoBlock] ${debugBuffer.length} decisions before the verdict`,
+        `%c[LlamaAutoPlayBlock] ${debugBuffer.length} decisions before the verdict`,
         'color:#eda13c;font-weight:bold',
       );
       for (const line of debugBuffer) console.log(line);

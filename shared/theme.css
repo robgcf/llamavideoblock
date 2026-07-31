@@ -1,9 +1,9 @@
 /*
- * LlamaVideoBlock design tokens, shared by the popup and the options page so there is one
+ * LlamaAutoPlayBlock design tokens, shared by the popup and the options page so there is one
  * source of truth for the palette.
  *
  * Warm charcoal and amber, taken from the cinder-block mark. Committed to a single dark
- * treatment on purpose — LlamaVideoBlock's surfaces should read as the extension's own object
+ * treatment on purpose — LlamaAutoPlayBlock's surfaces should read as the extension's own object
  * rather than as a fragment of whatever is behind them.
  *
  * No web fonts: extension pages cannot load remote assets, and bundling a face for two

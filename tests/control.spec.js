@@ -1,7 +1,7 @@
 /**
  * The control group.
  *
- * These tests prove the fixtures genuinely autoplay when LlamaVideoBlock stands down. Without
+ * These tests prove the fixtures genuinely autoplay when LlamaAutoPlayBlock stands down. Without
  * them, every assertion in blocking.spec.js could pass for the wrong reason — a broken
  * fixture, a missing media file, or an extension that failed to load would all look like
  * successful blocking.
@@ -30,7 +30,7 @@ test('autoplays normally when the master toggle is off (spec §5)', async ({ ext
   await page.goto(`${BASE_URL}/attr-video`);
 
   await expectPlaying(page);
-  // The site's own markup is left untouched when LlamaVideoBlock stands down.
+  // The site's own markup is left untouched when LlamaAutoPlayBlock stands down.
   expect((await mediaState(page, '#media')).autoplayAttr).toBe(true);
 });
 

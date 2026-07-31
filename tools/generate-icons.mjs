@@ -1,5 +1,5 @@
 /**
- * LlamaVideoBlock placeholder icon generator.
+ * LlamaAutoPlayBlock placeholder icon generator.
  *
  * PLACEHOLDER ART. The shipped icon is a commissioned 3D cement block (spec §10);
  * this exists so the extension is installable and visually coherent before that lands.

@@ -219,7 +219,7 @@ test('debug logging stays silent unless the toggle is on', async ({ extension })
   /** @type {string[]} */
   const logs = [];
   page.on('console', (message) => {
-    if (message.text().includes('LlamaVideoBlock')) logs.push(message.text());
+    if (message.text().includes('LlamaAutoPlayBlock')) logs.push(message.text());
   });
 
   await page.goto(`${BASE_URL}/attr-video`);
@@ -269,7 +269,7 @@ test('options page links to the privacy policy', async ({ extension }) => {
 
   await expect(link).toHaveAttribute(
     'href',
-    'https://llamahub.net/legal/llamavideoblock-privacy',
+    'https://llamahub.net/legal/llamaautoplayblock-privacy',
   );
   await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
 });

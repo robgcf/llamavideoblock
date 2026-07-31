@@ -1,5 +1,5 @@
 /**
- * LlamaVideoBlock popup.
+ * LlamaAutoPlayBlock popup.
  *
  * Reads state straight from storage rather than messaging the service worker — the popup
  * is a trusted extension context, so it can see all three stores, and this keeps the
@@ -40,7 +40,7 @@
   function requireElement(id, type) {
     const element = document.getElementById(id);
     if (!(element instanceof type)) {
-      throw new Error(`[LlamaVideoBlock] Popup element #${id} is missing or the wrong type`);
+      throw new Error(`[LlamaAutoPlayBlock] Popup element #${id} is missing or the wrong type`);
     }
     return /** @type {InstanceType<T>} */ (element);
   }
@@ -66,7 +66,7 @@
   /**
    * @typedef {object} PopupState
    * @property {number | null} tabId
-   * @property {string | null} hostname null on pages LlamaVideoBlock cannot act on
+   * @property {string | null} hostname null on pages LlamaAutoPlayBlock cannot act on
    * @property {boolean} enabled
    * @property {string[]} whitelist
    * @property {number} blockedCount
@@ -95,7 +95,7 @@
   function matchingEntry() {
     const hostname = state.hostname;
     if (!hostname) return null;
-    return state.whitelist.find((domain) => LlamaVideoBlockDomain.covers(domain, hostname)) ?? null;
+    return state.whitelist.find((domain) => LlamaAutoPlayBlockDomain.covers(domain, hostname)) ?? null;
   }
 
   /**
@@ -130,7 +130,7 @@
       ui.whitelistToggle.hidden = true;
       ui.note.hidden = false;
       ui.note.textContent =
-        'LlamaVideoBlock only runs on http and https pages, so there is nothing to do here.';
+        'LlamaAutoPlayBlock only runs on http and https pages, so there is nothing to do here.';
       ui.tally.hidden = true;
       return;
     }
@@ -172,18 +172,18 @@
   async function load() {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      const { enabled, whitelist, debug } = await LlamaVideoBlockStore.getSettings();
+      const { enabled, whitelist, debug } = await LlamaAutoPlayBlockStore.getSettings();
 
       const tabId = tab?.id ?? null;
-      const hostname = LlamaVideoBlockDomain.fromUrl(tab?.url);
-      const blockedCount = tabId === null ? 0 : await LlamaVideoBlockStore.getTabCount(tabId);
+      const hostname = LlamaAutoPlayBlockDomain.fromUrl(tab?.url);
+      const blockedCount = tabId === null ? 0 : await LlamaAutoPlayBlockStore.getTabCount(tabId);
       const debugLines =
-        debug && tabId !== null ? await LlamaVideoBlockStore.getDebugLines(tabId) : [];
+        debug && tabId !== null ? await LlamaAutoPlayBlockStore.getDebugLines(tabId) : [];
 
       state = { tabId, hostname, enabled, whitelist, blockedCount, debug, debugLines };
       render();
     } catch (error) {
-      console.error('[LlamaVideoBlock] Failed to load popup state:', error);
+      console.error('[LlamaAutoPlayBlock] Failed to load popup state:', error);
       ui.host.textContent = 'Something went wrong';
       ui.pill.dataset.state = 'unknown';
       ui.pill.textContent = 'Error';
@@ -194,7 +194,7 @@
 
   /**
    * Whitelist and toggle changes only bite on the next page load, so apply them by
-   * reloading. Skipped for tabs LlamaVideoBlock does not act on.
+   * reloading. Skipped for tabs LlamaAutoPlayBlock does not act on.
    *
    * @returns {Promise<void>}
    */
@@ -203,7 +203,7 @@
     try {
       await chrome.tabs.reload(state.tabId);
     } catch (error) {
-      console.error('[LlamaVideoBlock] Failed to reload the current tab:', error);
+      console.error('[LlamaAutoPlayBlock] Failed to reload the current tab:', error);
     }
   }
 
@@ -211,13 +211,13 @@
     void (async () => {
       const enabled = ui.masterToggle.checked;
       try {
-        await LlamaVideoBlockStore.setEnabled(enabled);
+        await LlamaAutoPlayBlockStore.setEnabled(enabled);
         state = { ...state, enabled, blockedCount: 0 };
         render();
         announce(enabled ? 'Blocking on' : 'Blocking off');
         await reloadTab();
       } catch (error) {
-        console.error('[LlamaVideoBlock] Failed to change the master toggle:', error);
+        console.error('[LlamaAutoPlayBlock] Failed to change the master toggle:', error);
         // Put the switch back where it was rather than lying about the stored state.
         ui.masterToggle.checked = !enabled;
       }
@@ -234,15 +234,15 @@
 
       try {
         const whitelist = entry
-          ? await LlamaVideoBlockStore.removeDomain(entry)
-          : await LlamaVideoBlockStore.addDomain(hostname);
+          ? await LlamaAutoPlayBlockStore.removeDomain(entry)
+          : await LlamaAutoPlayBlockStore.addDomain(hostname);
 
         state = { ...state, whitelist, blockedCount: 0 };
         render();
         announce(entry ? `${entry} removed from whitelist` : `${hostname} whitelisted`);
         await reloadTab();
       } catch (error) {
-        console.error('[LlamaVideoBlock] Failed to update the whitelist:', error);
+        console.error('[LlamaAutoPlayBlock] Failed to update the whitelist:', error);
         ui.whitelistToggle.disabled = false;
       }
     })();
@@ -251,7 +251,7 @@
   ui.diagCopy.addEventListener('click', () => {
     void (async () => {
       const report = [
-        `LlamaVideoBlock ${chrome.runtime.getManifest().version}`,
+        `LlamaAutoPlayBlock ${chrome.runtime.getManifest().version}`,
         `site: ${state.hostname ?? '(none)'} | enabled: ${state.enabled} | ` +
           `whitelisted: ${matchingEntry() !== null} | blocked: ${state.blockedCount}`,
         `ua: ${navigator.userAgent}`,
@@ -267,7 +267,7 @@
           ui.diagCopy.textContent = 'Copy';
         }, 1500);
       } catch (error) {
-        console.error('[LlamaVideoBlock] Could not copy diagnostics:', error);
+        console.error('[LlamaAutoPlayBlock] Could not copy diagnostics:', error);
         ui.diagCopy.textContent = 'Failed';
       }
     })();

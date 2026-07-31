@@ -1,5 +1,5 @@
 /**
- * Fixture server for the LlamaVideoBlock test suite.
+ * Fixture server for the LlamaAutoPlayBlock test suite.
  *
  * Local and dependency-free on purpose: tests must not depend on YouTube or Facebook
  * being reachable, unchanged, or in the mood.
@@ -15,7 +15,7 @@
 
 import { createServer } from 'node:http';
 
-const PORT = Number(process.env.LLAMAVIDEOBLOCK_FIXTURE_PORT ?? 8787);
+const PORT = Number(process.env.LLAMAAUTOPLAYBLOCK_FIXTURE_PORT ?? 8787);
 const HOST = '127.0.0.1';
 
 /**
@@ -57,7 +57,7 @@ const MEDIA = silentWav(30);
 function page(body) {
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="utf-8"><title>LlamaVideoBlock fixture</title></head>
+<head><meta charset="utf-8"><title>LlamaAutoPlayBlock fixture</title></head>
 <body>
 ${body}
 </body>
@@ -198,5 +198,5 @@ const server = createServer((request, response) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`LlamaVideoBlock fixtures on http://${HOST}:${PORT}`);
+  console.log(`LlamaAutoPlayBlock fixtures on http://${HOST}:${PORT}`);
 });

@@ -1,5 +1,5 @@
 /*
- * LlamaVideoBlock popup — a small piece of equipment rather than a web form.
+ * LlamaAutoPlayBlock popup — a small piece of equipment rather than a web form.
  *
  * Tokens live in shared/theme.css. This file is layout and the popup's own components:
  * the master switch, the site status row, and the tally.
@@ -32,12 +32,19 @@ body {
   border-radius: 5px;
 }
 
+/* The panel is a fixed 312px and the brand name is long. On a system whose fallback font
+   is wider than the macOS one this has to give way gracefully rather than wrap the header
+   onto two lines or push the switch off the edge. */
 .header__name {
   flex: 1;
+  min-width: 0;
   margin: 0;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* --------------------------------------------------------------- switch */

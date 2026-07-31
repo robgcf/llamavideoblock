@@ -1,12 +1,12 @@
 import { defineConfig } from '@playwright/test';
 
 /**
- * LlamaVideoBlock test configuration.
+ * LlamaAutoPlayBlock test configuration.
  *
  * Every test drives a real Chrome with the unpacked extension loaded, so the suite runs
  * serially against one fixture server. Chrome's own autoplay policy is disabled inside the
  * browser launch args (see tests/helpers.js) — without that we would be measuring Chrome's
- * blocking rather than LlamaVideoBlock's.
+ * blocking rather than LlamaAutoPlayBlock's.
  */
 export default defineConfig({
   testDir: './tests',

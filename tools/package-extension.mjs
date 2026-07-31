@@ -93,7 +93,7 @@ if (unbundled.length > 0) {
   process.exit(1);
 }
 
-const output = join(DIST, `llamavideoblock-${manifest.version}.zip`);
+const output = join(DIST, `llamaautoplayblock-${manifest.version}.zip`);
 mkdirSync(DIST, { recursive: true });
 rmSync(output, { force: true });
 
